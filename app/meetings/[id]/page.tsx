@@ -32,7 +32,7 @@ export default async function MeetingPage({ params, searchParams }: PageProps) {
   return (
     <main className="auth-shell">
       <Link href="/dashboard" className="back-home"><ArrowLeft size={16} /> Voltar ao conselho</Link>
-      <section className="auth-panel" style={{ maxWidth: 760 }}>
+      <section className="auth-panel" style={{ maxWidth: 760, width: "min(760px, calc(100% - 48px))" }}>
         <div className="auth-brand">
           <span className="brand-mark"><BrainCircuit size={21} /></span>
           <span>MULTI<span className="brand-light">CONSCIÊNCIA</span><span className="brand-count">15</span></span>
