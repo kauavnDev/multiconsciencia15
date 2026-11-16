@@ -149,10 +149,10 @@ export async function runWithBestAvailableProvider(options: RouterOptions): Prom
         body: JSON.stringify({
           model: provider.model,
           messages: [
-            { role: "system", content: options.systemPrompt },
-            { role: "user", content: options.input },
+            { role: "system", content: options.systemPrompt.slice(0, 6000) },
+            { role: "user", content: options.input.slice(0, 7000) },
           ],
-          max_tokens: 650,
+          max_tokens: 450,
         }),
         signal: AbortSignal.timeout(45_000),
         cache: "no-store",
