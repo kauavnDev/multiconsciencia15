@@ -6,7 +6,6 @@ import StartRoundButton from "./start-round-button";
 import PresidentDecision from "./president-decision";
 import SummonAgent from "@/components/summon-agent";
 import MeetingChat from "@/components/meeting-chat";
-import SummonAgent from "@/components/summon-agent";
 
 type PageProps = {
   params: Promise<{ id: string }>;
