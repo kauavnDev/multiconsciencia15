@@ -27,7 +27,7 @@ export async function createMeeting(formData: FormData) {
   const autoRoster=Array.from(new Set(["diretor-geral","mediador",...(matched.length?matched:["estrategista","analista-dados","advogado-diabo","gestor-riscos"])] )).slice(0,maxParticipants);
   const roster=participantMode==="manual"
     ? Array.from(new Set([...selectedParticipants,"diretor-geral","mediador"]))
-    : participantMode==="hybrid" ? Array.from(new Set([...autoRoster,...selectedParticipants])) : autoRoster;
+    : participantMode==="hybrid" ? Array.from(new Set([...autoRoster,...selectedParticipants])).slice(0,maxParticipants) : autoRoster;
 
   if (!title || title.length > 160 || agenda.length > 12000) {
     redirect("/meetings/new?error=invalid");
