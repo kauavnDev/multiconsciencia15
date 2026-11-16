@@ -60,3 +60,8 @@ Para habilitar a primeira rodada, configure uma ou mais chaves server-side: `GEM
 ## Estado do produto
 
 A base de autenticação e persistência está conectada ao projeto Supabase. As migrações 0001–0009 foram aplicadas e verificadas no projeto principal. As reuniões reais, o debate multiagente, as votações e o fluxo de aprovação do presidente dependem da próxima etapa de implementação do backend de orquestração.
+
+
+## Continuidade com o ChatGPT
+
+Na tela de cada reunião, use **Exportar para continuar no ChatGPT** para baixar um pacote Markdown com a pauta, o histórico de mensagens e o estado das tarefas/provedores. Envie esse arquivo na conversa do ChatGPT em que quiser continuar o trabalho. A exportação exige login, respeita o acesso privado do usuário e não expõe chaves de API. A continuidade entre o site e uma conversa específica não é automática: o usuário escolhe quando compartilhar o pacote.

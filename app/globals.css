@@ -12,3 +12,43 @@
 /* Meeting forms and conversation history */
 textarea.field{height:auto;min-height:150px;padding:12px 14px;resize:vertical;line-height:1.6}
 .meeting-row p{font-size:11px;line-height:1.7;color:#aab6ca;white-space:pre-wrap;margin:8px 0 0}
+
+
+/* Mobile-first workspace refinements */
+@media(max-width:650px){
+  .meeting-row{align-items:flex-start;gap:9px;padding:12px 10px}
+  .meeting-row>div{min-width:0;overflow-wrap:anywhere}
+  .meeting-status{max-width:82px;text-align:right;white-space:normal;line-height:1.5}
+  .auth-shell{display:block;min-height:100svh}
+  .auth-panel{max-width:100%!important}
+  .auth-heading h1{overflow-wrap:anywhere}
+  .auth-heading p{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .section-title{gap:12px;align-items:flex-end}
+  .section-count{font-size:8px;text-align:right}
+  .stat-row{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .stat-box{min-width:0;overflow:hidden}
+  .stat-box small{display:block;line-height:1.45}
+  .dash-top{gap:10px}
+  .dash-top>div:first-child{min-width:0}
+  .top-status{white-space:nowrap}
+  .agent-card{min-width:0}
+  .role-chip{min-width:0}
+  .role-chip>span:nth-child(2){overflow-wrap:anywhere}
+  .footer span:last-child,.dash-footer span:last-child{text-align:right}
+  textarea.field{min-height:135px}
+}
+@media(min-width:651px) and (max-width:900px){
+  .dashboard-shell{grid-template-columns:190px minmax(0,1fr)}
+  .dash-main{padding:30px 22px}
+  .agent-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .auth-shell{grid-template-columns:minmax(0,1fr)}
+  .auth-aside{display:none}
+}
+@media(max-width:380px){
+  .brand-light{display:none}
+  .hero h1{font-size:45px}
+  .room-foot{padding:14px 12px;gap:6px}
+  .room-foot strong{font-size:9px}
+  .stat-box span{font-size:6px}
+  .agent-grid{grid-template-columns:1fr}
+}
