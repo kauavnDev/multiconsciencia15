@@ -22,7 +22,9 @@ export async function createMeeting(formData: FormData) {
     {terms:["pesquisa","estudo","ciência","dados","experimento","hipótese"],agents:["cientista","analista-dados","inventor","auditor","visionario"]},
   ];
   const matched=topicRules.filter(rule=>rule.terms.some(term=>topic.includes(term))).flatMap(rule=>rule.agents);
-  const autoRoster=Array.from(new Set(["diretor-geral","mediador",...(matched.length?matched:["estrategista","analista-dados","advogado-diabo","gestor-riscos"])]));
+  const savedPrefs = (data.user.user_metadata?.council_preferences ?? {}) as { maxParticipants?: number };
+  const maxParticipants = [3,5,6,8,10,15].includes(Number(savedPrefs.maxParticipants)) ? Number(savedPrefs.maxParticipants) : 6;
+  const autoRoster=Array.from(new Set(["diretor-geral","mediador",...(matched.length?matched:["estrategista","analista-dados","advogado-diabo","gestor-riscos"])] )).slice(0,maxParticipants);
   const roster=participantMode==="manual"
     ? Array.from(new Set([...selectedParticipants,"diretor-geral","mediador"]))
     : participantMode==="hybrid" ? Array.from(new Set([...autoRoster,...selectedParticipants])) : autoRoster;
