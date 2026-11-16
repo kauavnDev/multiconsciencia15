@@ -47,7 +47,7 @@ export async function POST(
     `PAUTA DA PRESIDÊNCIA: ${meeting.agenda || "Sem contexto adicional."}`,
     memoryContext ? `MEMÓRIAS RELEVANTES:\n${memoryContext}` : "",
     "FASE: primeira análise independente. Ainda não responda aos argumentos dos outros agentes.",
-    "Entregue: (1) sua posição inicial, (2) três razões principais, (3) maior incerteza ou risco, (4) evidência que falta, (5) recomendação provisória.",
+    "Diga sua posição inicial em linguagem natural, como numa conversa de equipe. Traga um argumento forte, um risco e uma pergunta que os outros devam responder. No máximo 100 palavras. Sem relatório, tabela ou títulos longos.",
     "Seja específico, honesto sobre incertezas e conciso. Não invente dados. Não aprove nem execute ações. A decisão final pertence à presidência.",
   ].filter(Boolean).join("\n\n");
 
