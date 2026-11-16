@@ -15,7 +15,7 @@ type Props = {
 type Result = { ok: boolean; error: string; model?: string };
 
 const phases: { key: Phase; title: string; description: string; expected: number; agents: string[] | "all" }[] = [
-  { key: "challenge", title: "Contestação", description: "Os especialistas confrontam as análises e apontam falhas, riscos e premissas frágeis.", expected: expectedParticipants, agents: "all" },
+  { key: "challenge", title: "Contestação", description: "Os especialistas confrontam as análises e apontam falhas, riscos e premissas frágeis.", expected: 15, agents: "all" },
   { key: "revision", title: "Revisão de posições", description: "Cada agente reconsidera sua posição sem ser obrigado a concordar com a maioria.", expected: expectedParticipants, agents: "all" },
   { key: "voting", title: "Votação independente", description: "Cada conselheiro registra aprovar, rejeitar ou abster-se, com justificativa.", expected: expectedParticipants, agents: "all" },
   { key: "synthesis", title: "Síntese do Mediador", description: "O Mediador registra acordos, divergências, votos e questões em aberto, sem forçar consenso.", expected: 1, agents: ["mediador"] },
@@ -31,7 +31,7 @@ export default function StartRoundButton({ meetingId, agents, openingCount, phas
     if (openingCount < expectedParticipants) return { key: "opening" as const, title: "Análise independente", expected: expectedParticipants };
     const pending = phases.find((phase) => phaseCounts[phase.key] < phase.expected);
     return pending ? { key: pending.key, title: pending.title, expected: pending.expected } : null;
-  }, [openingCount, phaseCounts]);
+  }, [openingCount, phaseCounts, expectedParticipants]);
 
   async function runNext() {
     if (busy || !next) return;
@@ -88,7 +88,7 @@ export default function StartRoundButton({ meetingId, agents, openingCount, phas
   }
 
   const completedStages = (openingCount >= expectedParticipants ? 1 : 0)
-    + phases.filter((phase) => phaseCounts[phase.key] >= phase.expected).length;
+    + phases.filter((phase) => phaseCounts[phase.key] >= (phase.key === "synthesis" ? 1 : expectedParticipants)).length;
 
   return (
     <section style={{ margin: "18px 0", padding: 16, border: "1px solid rgba(98,231,223,.2)", borderRadius: 12, background: "rgba(98,231,223,.04)" }}>
@@ -103,7 +103,7 @@ export default function StartRoundButton({ meetingId, agents, openingCount, phas
       </div>
       <div style={{ display: "grid", gap: 8, marginTop: 14 }}>
         <StageLine title="1. Análise independente" count={openingCount} expected={expectedParticipants} />
-        {phases.map((phase, index) => <StageLine key={phase.key} title={`${index + 2}. ${phase.title}`} count={phaseCounts[phase.key]} expected={phase.expected} />)}
+        {phases.map((phase, index) => <StageLine key={phase.key} title={`${index + 2}. ${phase.title}`} count={phaseCounts[phase.key]} expected={phase.key === "synthesis" ? 1 : expectedParticipants} />)}
       </div>
       {busy && <p role="status" style={{ margin: "12px 0 0", color: "#9de9e2", fontSize: 12 }}>Processando {activeTitle}: {done}/{next?.expected ?? 0}.</p>}
       {message && <p role="status" style={{ margin: "8px 0 0", color: "#9de9e2", fontSize: 12 }}>{message}</p>}
