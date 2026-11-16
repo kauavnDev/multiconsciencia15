@@ -5,7 +5,7 @@ services:
     plan: free
     region: ohio
     branch: infra/render-temporary-hosting
-    buildCommand: npm ci && npm run build
+    buildCommand: npm install && npm run build
     startCommand: npm start
     healthCheckPath: /login
     autoDeploy: true
