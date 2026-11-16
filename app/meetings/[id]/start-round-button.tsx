@@ -10,24 +10,25 @@ type Props = {
   agents: Agent[];
   openingCount: number;
   phaseCounts: Record<Phase, number>;
+  expectedParticipants: number;
 };
 type Result = { ok: boolean; error: string; model?: string };
 
 const phases: { key: Phase; title: string; description: string; expected: number; agents: string[] | "all" }[] = [
-  { key: "challenge", title: "Contestação", description: "Os especialistas confrontam as análises e apontam falhas, riscos e premissas frágeis.", expected: 15, agents: "all" },
-  { key: "revision", title: "Revisão de posições", description: "Cada agente reconsidera sua posição sem ser obrigado a concordar com a maioria.", expected: 15, agents: "all" },
-  { key: "voting", title: "Votação independente", description: "Cada conselheiro registra aprovar, rejeitar ou abster-se, com justificativa.", expected: 15, agents: "all" },
+  { key: "challenge", title: "Contestação", description: "Os especialistas confrontam as análises e apontam falhas, riscos e premissas frágeis.", expected: expectedParticipants, agents: "all" },
+  { key: "revision", title: "Revisão de posições", description: "Cada agente reconsidera sua posição sem ser obrigado a concordar com a maioria.", expected: expectedParticipants, agents: "all" },
+  { key: "voting", title: "Votação independente", description: "Cada conselheiro registra aprovar, rejeitar ou abster-se, com justificativa.", expected: expectedParticipants, agents: "all" },
   { key: "synthesis", title: "Síntese do Mediador", description: "O Mediador registra acordos, divergências, votos e questões em aberto, sem forçar consenso.", expected: 1, agents: ["mediador"] },
 ];
 
-export default function StartRoundButton({ meetingId, agents, openingCount, phaseCounts }: Props) {
+export default function StartRoundButton({ meetingId, agents, openingCount, phaseCounts, expectedParticipants }: Props) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(0);
   const [message, setMessage] = useState("");
   const [activeTitle, setActiveTitle] = useState("");
   const next = useMemo(() => {
-    if (openingCount < 15) return { key: "opening" as const, title: "Análise independente", expected: 15 };
+    if (openingCount < expectedParticipants) return { key: "opening" as const, title: "Análise independente", expected: expectedParticipants };
     const pending = phases.find((phase) => phaseCounts[phase.key] < phase.expected);
     return pending ? { key: pending.key, title: pending.title, expected: pending.expected } : null;
   }, [openingCount, phaseCounts]);
@@ -86,7 +87,7 @@ export default function StartRoundButton({ meetingId, agents, openingCount, phas
     router.refresh();
   }
 
-  const completedStages = (openingCount >= 15 ? 1 : 0)
+  const completedStages = (openingCount >= expectedParticipants ? 1 : 0)
     + phases.filter((phase) => phaseCounts[phase.key] >= phase.expected).length;
 
   return (
@@ -94,14 +95,14 @@ export default function StartRoundButton({ meetingId, agents, openingCount, phas
       <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
         <div>
           <b style={{ display: "block", marginBottom: 5 }}>Conselho multiagente · {completedStages}/5 etapas</b>
-          <span style={{ color: "#8995ad", fontSize: 12 }}>Análise → contestação → revisão → votação → síntese. Você mantém a decisão final.</span>
+          <span style={{ color: "#8995ad", fontSize: 12 }}>{expectedParticipants} especialistas convocados · análise → debate → revisão → votação → síntese. Você mantém a decisão final.</span>
         </div>
         <button className="button button-primary" type="button" onClick={runNext} disabled={busy || !next} style={{ opacity: busy || !next ? .55 : 1 }}>
           {busy ? "Conselheiros trabalhando..." : next ? `Executar: ${next.title}` : "Sessão analisada"}
         </button>
       </div>
       <div style={{ display: "grid", gap: 8, marginTop: 14 }}>
-        <StageLine title="1. Análise independente" count={openingCount} expected={15} />
+        <StageLine title="1. Análise independente" count={openingCount} expected={expectedParticipants} />
         {phases.map((phase, index) => <StageLine key={phase.key} title={`${index + 2}. ${phase.title}`} count={phaseCounts[phase.key]} expected={phase.expected} />)}
       </div>
       {busy && <p role="status" style={{ margin: "12px 0 0", color: "#9de9e2", fontSize: 12 }}>Processando {activeTitle}: {done}/{next?.expected ?? 0}.</p>}
