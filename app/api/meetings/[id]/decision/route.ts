@@ -15,13 +15,16 @@ export async function POST(
   const { data: auth, error: authError } = await supabase.auth.getUser();
   if (authError || !auth.user) return NextResponse.json({ error: "Faça login para registrar sua decisão." }, { status: 401 });
 
-  const [{ data: meeting }, { data: synthesis }, { data: votes }] = await Promise.all([
+  const [{ data: meeting }, { data: synthesis }, { data: votes }, { data: preferenceEvent }] = await Promise.all([
     supabase.from("meetings").select("id,title,status").eq("id", meetingId).maybeSingle(),
     supabase.from("meeting_messages").select("id,content").eq("meeting_id", meetingId).eq("round_number", 5).eq("agent_slug", "mediador").maybeSingle(),
     supabase.from("meeting_votes").select("agent_slug,vote,rationale").eq("meeting_id", meetingId),
+    supabase.from("meeting_events").select("event_data").eq("meeting_id", meetingId).eq("event_type", "participant_preferences").maybeSingle(),
   ]);
 
   if (!meeting) return NextResponse.json({ error: "Reunião não encontrada." }, { status: 404 });
+  const prefs = (preferenceEvent?.event_data ?? {}) as { mode?: string; selected_slugs?: string[] };
+  const expectedVotes = prefs.mode === "manual" ? new Set([...(prefs.selected_slugs ?? []), "diretor-geral", "mediador"]).size : 15;
   if (meeting.status === "completed") return NextResponse.json({ error: "Esta reunião já recebeu uma decisão." }, { status: 409 });
   if (!synthesis || (votes?.length ?? 0) < 15) {
     return NextResponse.json({ error: "Conclua a síntese e a votação dos 15 conselheiros antes de decidir." }, { status: 409 });
