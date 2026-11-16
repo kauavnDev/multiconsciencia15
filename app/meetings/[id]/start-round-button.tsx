@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 type Agent = { slug: string; name: string };
 type Props = { meetingId: string; agents: Agent[]; alreadyStarted: boolean };
+type Result = { ok: boolean; error: string };
 
 export default function StartRoundButton({ meetingId, agents, alreadyStarted }: Props) {
   const router = useRouter();
@@ -19,25 +20,28 @@ export default function StartRoundButton({ meetingId, agents, alreadyStarted }: 
     setMessage("Preparando a primeira rodada...");
     let successes = 0;
     let failures = 0;
+    let lastError = "";
 
     // Limit concurrency to three model calls to reduce rate-limit spikes.
     for (let i = 0; i < agents.length; i += 3) {
       const batch = agents.slice(i, i + 3);
-      const results = await Promise.all(batch.map(async (agent) => {
+      const results: Result[] = await Promise.all(batch.map(async (agent) => {
         try {
           const response = await fetch(`/api/meetings/${meetingId}/agents/${agent.slug}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
           });
-          return response.ok;
+          const payload = await response.json().catch(() => ({})) as { error?: string };
+          return { ok: response.ok, error: payload.error ?? "" };
         } catch {
-          return false;
+          return { ok: false, error: "Falha de conexão com o servidor." };
         }
       }));
-      successes += results.filter(Boolean).length;
-      failures += results.length - results.filter(Boolean).length;
+      successes += results.filter((result) => result.ok).length;
+      failures += results.filter((result) => !result.ok).length;
+      lastError = results.find((result) => !result.ok)?.error || lastError;
       setDone(successes);
-      setMessage(failures ? `${successes} de ${agents.length} agentes responderam; ${failures} falharam.` : `${successes} de ${agents.length} agentes responderam.`);
+      setMessage(failures ? `${successes} de ${agents.length} agentes responderam; ${failures} falharam. ${lastError}` : `${successes} de ${agents.length} agentes responderam.`);
     }
 
     setBusy(false);
@@ -45,7 +49,7 @@ export default function StartRoundButton({ meetingId, agents, alreadyStarted }: 
       setMessage("Primeira rodada concluída. Atualizando a reunião...");
       router.refresh();
     } else {
-      setMessage(`${successes} respostas salvas. Toque novamente depois de configurar ou corrigir a API para tentar os restantes.`);
+      setMessage(`${successes} respostas salvas. Corrija o problema informado e tente novamente para completar a rodada.`);
       router.refresh();
     }
   }
