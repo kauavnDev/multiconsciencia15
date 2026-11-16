@@ -29,8 +29,8 @@ export default function StartRoundButton({ meetingId, agents, openingCount, phas
   const [activeTitle, setActiveTitle] = useState("");
   const next = useMemo(() => {
     if (openingCount < expectedParticipants) return { key: "opening" as const, title: "Análise independente", expected: expectedParticipants };
-    const pending = phases.find((phase) => phaseCounts[phase.key] < phase.expected);
-    return pending ? { key: pending.key, title: pending.title, expected: pending.expected } : null;
+    const pending = phases.find((phase) => phaseCounts[phase.key] < (phase.key === "synthesis" ? 1 : expectedParticipants));
+    return pending ? { key: pending.key, title: pending.title, expected: pending.key === "synthesis" ? 1 : expectedParticipants } : null;
   }, [openingCount, phaseCounts, expectedParticipants]);
 
   async function runNext() {
