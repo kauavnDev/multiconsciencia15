@@ -6,10 +6,11 @@ export async function POST(request:Request,{params}:{params:Promise<{id:string}>
  if(!/^[a-z0-9-]{2,50}$/.test(slug)) return NextResponse.json({error:"Especialista inválido."},{status:400});
  const supabase=await createClient(); const {data:auth,error}=await supabase.auth.getUser();
  if(error||!auth.user) return NextResponse.json({error:"Faça login."},{status:401});
- const [{data:meeting},{data:agent},{data:pref}] = await Promise.all([
+ const [{data:meeting},{data:agent},{data:pref},{data:synthesis}] = await Promise.all([
   supabase.from("meetings").select("id,status").eq("id",id).maybeSingle(),
   supabase.from("agents").select("slug").eq("slug",slug).eq("is_fixed",true).maybeSingle(),
-  supabase.from("meeting_events").select("id,event_data").eq("meeting_id",id).eq("event_type","participant_preferences").maybeSingle()
+  supabase.from("meeting_events").select("id,event_data").eq("meeting_id",id).eq("event_type","participant_preferences").maybeSingle(),
+  supabase.from("meeting_messages").select("id").eq("meeting_id",id).eq("round_number",5).eq("agent_slug","mediador").maybeSingle()
  ]);
  if(!meeting) return NextResponse.json({error:"Reunião não encontrada."},{status:404});
  if(meeting.status==="completed"||meeting.status==="cancelled") return NextResponse.json({error:"A reunião já foi encerrada."},{status:409});
