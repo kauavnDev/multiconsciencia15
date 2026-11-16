@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - infra/render-temporary-hosting
+      - feature/operations-engine
   workflow_dispatch:
 permissions:
   contents: read
