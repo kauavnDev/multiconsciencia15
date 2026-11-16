@@ -91,7 +91,7 @@ export default async function MeetingPage({ params, searchParams }: PageProps) {
 
         <StartRoundButton
           meetingId={meeting.id}
-          agents={agents ?? []}
+          agents={activeAgents}
           openingCount={openingCount}
           phaseCounts={phaseCounts}
         />
