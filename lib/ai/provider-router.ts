@@ -104,22 +104,23 @@ function healthFor(provider: AiProvider, health: ProviderHealth[]) {
 
 function rankProviders(providers: AiProvider[], health: ProviderHealth[]) {
   const now = Date.now();
-  return providers
-    .filter((provider) => {
-      const state = healthFor(provider, health);
-      return !state?.cooldown_until || new Date(state.cooldown_until).getTime() <= now;
-    })
-    .sort((a, b) => {
-      const aState = healthFor(a, health);
-      const bState = healthFor(b, health);
-      const aScore = a.quality * 0.62 + a.speed * 0.18
-        - (aState?.consecutive_failures ?? 0) * 9
-        - (aState?.average_latency_ms ?? 0) / 2500;
-      const bScore = b.quality * 0.62 + b.speed * 0.18
-        - (bState?.consecutive_failures ?? 0) * 9
-        - (bState?.average_latency_ms ?? 0) / 2500;
-      return bScore - aScore;
-    });
+  // Cooldown is a preference, not a hard exclusion: always keep a configured
+  // provider as a fallback so a rate-limited Groq cannot hide a healthy Gemini.
+  return [...providers].sort((a, b) => {
+    const aState = healthFor(a, health);
+    const bState = healthFor(b, health);
+    const aCooling = !!aState?.cooldown_until && new Date(aState.cooldown_until).getTime() > now;
+    const bCooling = !!bState?.cooldown_until && new Date(bState.cooldown_until).getTime() > now;
+    const aScore = a.quality * 0.62 + a.speed * 0.18
+      - (aState?.consecutive_failures ?? 0) * 9
+      - (aState?.average_latency_ms ?? 0) / 2500
+      - (aCooling ? 1000 : 0);
+    const bScore = b.quality * 0.62 + b.speed * 0.18
+      - (bState?.consecutive_failures ?? 0) * 9
+      - (bState?.average_latency_ms ?? 0) / 2500
+      - (bCooling ? 1000 : 0);
+    return bScore - aScore;
+  });
 }
 
 function extractText(payload: { choices?: Array<{ message?: { content?: string | Array<{ type?: string; text?: string }> } }> }) {
@@ -149,10 +150,10 @@ export async function runWithBestAvailableProvider(options: RouterOptions): Prom
         body: JSON.stringify({
           model: provider.model,
           messages: [
-            { role: "system", content: options.systemPrompt.slice(0, 6000) },
-            { role: "user", content: options.input.slice(0, 7000) },
+            { role: "system", content: options.systemPrompt.slice(0, 4000) },
+            { role: "user", content: options.input.slice(0, 4500) },
           ],
-          max_tokens: 450,
+          max_tokens: 220,
         }),
         signal: AbortSignal.timeout(45_000),
         cache: "no-store",
