@@ -50,9 +50,9 @@ export default async function MeetingPage({ params, searchParams }: PageProps) {
   ];
   const matched = topicRules.filter(rule => rule.terms.some(term => topic.includes(term))).flatMap(rule => rule.agents);
   const autoRoster = Array.from(new Set(["diretor-geral","mediador",...(matched.length ? matched : ["estrategista","analista-dados","advogado-diabo","gestor-riscos"])]));
-  const selectedSlugs = Array.isArray(participantPrefs.selected_slugs) && participantPrefs.selected_slugs.length
-    ? Array.from(new Set([...participantPrefs.selected_slugs, "diretor-geral", "mediador"]))
-    : participantPrefs.mode === "manual" ? ["diretor-geral","mediador"] : autoRoster;
+  const selectedSlugs = preferenceEvent
+    ? Array.from(new Set([...(participantPrefs.selected_slugs ?? []), "diretor-geral", "mediador"]))
+    : allAgents.map((agent) => agent.slug);
   const activeAgents = allAgents.filter((agent) => selectedSlugs.includes(agent.slug));
   const expectedParticipants = activeAgents.length || 15;
   const countFor = (round: number) => rows.filter((message) => message.speaker_type === "agent" && message.round_number === round).length;
