@@ -36,7 +36,7 @@ export async function POST(
   const [{ data: meeting }, { data: agent }, { data: memories }] = await Promise.all([
     supabase.from("meetings").select("id,title,agenda,status").eq("id", meetingId).maybeSingle(),
     supabase.from("agents").select("slug,name,specialty,system_prompt").eq("slug", agentSlug).eq("is_fixed", true).maybeSingle(),
-    supabase.from("agent_memories").select("scope,memory_type,content").eq("owner_id", auth.user.id).eq("is_active", true).or(`scope.eq.collective,and(scope.eq.individual,agent_slug.eq.${agentSlug})`).order("updated_at", { ascending: false }).limit(8),
+    supabase.from("agent_memories").select("scope,agent_slug,memory_type,content").eq("owner_id", auth.user.id).eq("is_active", true).order("updated_at", { ascending: false }).limit(30),
   ]);
 
   if (!meeting) return NextResponse.json({ error: "Reunião não encontrada." }, { status: 404 });
@@ -70,7 +70,7 @@ export async function POST(
     return NextResponse.json({ error: "Não foi possível preparar a rodada." }, { status: 500 });
   }
 
-  const memoryContext = (memories ?? []).map((memory) => `[${memory.scope}/${memory.memory_type}] ${memory.content}`).join("\n");
+  const memoryContext = (memories ?? []).filter((memory) => memory.scope === "collective" || (memory.scope === "individual" && memory.agent_slug === agentSlug)).slice(0, 8).map((memory) => `[${memory.scope}/${memory.memory_type}] ${memory.content}`).join("\n");
   const input = [
     `REUNIÃO: ${meeting.title}`,
     `PAUTA DA PRESIDÊNCIA: ${meeting.agenda || "Sem contexto adicional."}`,
