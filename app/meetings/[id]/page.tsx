@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, BrainCircuit, Clock3, MessageSquareText } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import StartRoundButton from "./start-round-button";
+import PresidentDecision from "./president-decision";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -75,7 +76,7 @@ export default async function MeetingPage({ params, searchParams }: PageProps) {
           phaseCounts={phaseCounts}
         />
 
-        {phaseCounts.voting > 0 && (
+        {phaseCounts.synthesis >= 1 && (
           <div className="empty-state" style={{ marginBottom: 18 }}>
             <b>Placar da votação</b>
             <p>Favoráveis: {voteTotals.approve ?? 0} · Contrários: {voteTotals.reject ?? 0} · Abstenções: {voteTotals.abstain ?? 0}</p>
