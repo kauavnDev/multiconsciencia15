@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import StartRoundButton from "./start-round-button";
 import PresidentDecision from "./president-decision";
 import SummonAgent from "@/components/summon-agent";
+import MeetingChat from "@/components/meeting-chat";
+import SummonAgent from "@/components/summon-agent";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -104,25 +106,10 @@ export default async function MeetingPage({ params, searchParams }: PageProps) {
         )}
 
         <div className="section-title">
-          <div><span className="eyebrow">REGISTRO DA SESSÃO</span><h2>Mensagens e argumentos</h2></div>
-          <span className="section-count">{rows.length} REGISTROS</span>
+          <div><span className="eyebrow">REGISTRO DA SESSÃO</span><h2>Conversa da equipe</h2></div>
+          <span className="section-count">{rows.length} MENSAGENS</span>
         </div>
-        {rows.length > 0 ? (
-          <div className="meeting-list">
-            {rows.map((message) => (
-              <article className="meeting-row" key={message.id}>
-                <span className="meeting-icon"><MessageSquareText size={17} /></span>
-                <div>
-                  <b>{message.speaker_type === "president" ? "Presidência" : message.agent_slug ?? "Sistema"} · {["Pauta", "Análise inicial", "Contestação", "Revisão", "Votação", "Síntese"].at(message.round_number) ?? `Etapa ${message.round_number}`}</b>
-                  <small>{new Date(message.created_at).toLocaleString("pt-BR")}</small>
-                  <p>{message.content}</p>
-                </div>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <div className="empty-state"><b>Nenhuma mensagem registrada ainda.</b></div>
-        )}
+        <MeetingChat meetingId={meeting.id} initialMessages={rows} agents={allAgents} />
         <div className="auth-secure">◈ Cada etapa gera registros persistentes. Falhas de API podem ser retomadas sem apagar respostas já salvas. Nenhum voto substitui sua decisão como presidente.</div>
       </section>
     </main>
