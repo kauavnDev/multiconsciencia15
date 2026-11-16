@@ -66,7 +66,7 @@ export default function OfficeSimulation({members}:{members:Member[]}){
      setEventType("idle");setEvent("Escritório aberto · atividades em andamento");
    },eventType==="game"?5200:7200);
    return ()=>window.clearTimeout(timer);
- },[eventType,round]);
+ },[eventType]);
  const playRound=()=>{
    const options=["PEDRA","PAPEL","TESOURA"],a=options[pick(0,2)],b=options[pick(0,2)];
    const result=a===b?"Empate":(a==="PEDRA"&&b==="TESOURA")||(a==="PAPEL"&&b==="PEDRA")||(a==="TESOURA"&&b==="PAPEL")?"SPARK venceu":"VEX venceu";
