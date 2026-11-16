@@ -39,7 +39,21 @@ export default async function MeetingPage({ params, searchParams }: PageProps) {
   const rows = messages ?? [];
   const participantPrefs = (preferenceEvent?.event_data ?? {}) as { mode?: string; selected_slugs?: string[] };
   const allAgents = agents ?? [];
-  const selectedSlugs = participantPrefs.mode === "manual" ? Array.from(new Set([...(participantPrefs.selected_slugs ?? []), "diretor-geral", "mediador"])) : allAgents.map((agent) => agent.slug);
+  const topic = `${meeting.title} ${meeting.agenda ?? ""}`.toLowerCase();
+  const topicRules: Array<{ terms: string[]; agents: string[] }> = [
+    { terms: ["dinheiro","finance","orçamento","custo","preço","receita","lucro","caixa","investimento"], agents: ["economista","analista-dados","gestor-riscos","auditor","estrategista"] },
+    { terms: ["app","aplicativo","software","site","sistema","tecnologia","api","produto","plataforma"], agents: ["engenheiro","designer-solucoes","inventor","analista-dados","planejador","gestor-riscos"] },
+    { terms: ["marketing","venda","cliente","mercado","publicidade","anúncio","marca","concorrência"], agents: ["especialista-mercado","estrategista","analista-dados","economista","advogado-diabo"] },
+    { terms: ["lei","contrato","lgpd","privacidade","segurança","risco","regulação"], agents: ["auditor","gestor-riscos","engenheiro","advogado-diabo","cientista"] },
+    { terms: ["pesquisa","estudo","ciência","dados","experimento","hipótese"], agents: ["cientista","analista-dados","inventor","auditor","visionario"] },
+  ];
+  const matched = topicRules.filter(rule => rule.terms.some(term => topic.includes(term))).flatMap(rule => rule.agents);
+  const autoRoster = Array.from(new Set(["diretor-geral","mediador",...(matched.length ? matched : ["estrategista","analista-dados","advogado-diabo","gestor-riscos"])]));
+  const selectedSlugs = participantPrefs.mode === "manual"
+    ? Array.from(new Set([...(participantPrefs.selected_slugs ?? []), "diretor-geral", "mediador"]))
+    : participantPrefs.mode === "hybrid"
+      ? Array.from(new Set([...autoRoster,...(participantPrefs.selected_slugs ?? [])]))
+      : autoRoster;
   const activeAgents = allAgents.filter((agent) => selectedSlugs.includes(agent.slug));
   const expectedParticipants = activeAgents.length || 15;
   const countFor = (round: number) => rows.filter((message) => message.speaker_type === "agent" && message.round_number === round).length;
