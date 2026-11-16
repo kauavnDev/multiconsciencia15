@@ -24,13 +24,29 @@ export default async function MeetingPage({ params, searchParams }: PageProps) {
 
   if (!meeting) notFound();
 
-  const [{ data: messages }, { data: agents }] = await Promise.all([supabase
-    .from("meeting_messages")
-    .select("id,speaker_type,agent_slug,content,round_number,created_at")
-    .eq("meeting_id", id)
-    .order("created_at", { ascending: true }),
+  const [{ data: messages }, { data: agents }, { data: votes }] = await Promise.all([
+    supabase.from("meeting_messages")
+      .select("id,speaker_type,agent_slug,content,round_number,created_at")
+      .eq("meeting_id", id)
+      .order("created_at", { ascending: true }),
     supabase.from("agents").select("slug,name").eq("is_fixed", true).order("name", { ascending: true }),
+    supabase.from("meeting_votes").select("agent_slug,vote,rationale").eq("meeting_id", id),
   ]);
+
+  const rows = messages ?? [];
+  const countFor = (round: number) => rows.filter((message) => message.speaker_type === "agent" && message.round_number === round).length;
+  const openingCount = countFor(1);
+  const phaseCounts = {
+    challenge: countFor(2),
+    revision: countFor(3),
+    voting: countFor(4),
+    synthesis: countFor(5),
+  };
+
+  const voteTotals = (votes ?? []).reduce((acc, vote) => {
+    acc[vote.vote] = (acc[vote.vote] ?? 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
 
   return (
     <main className="auth-shell">
@@ -51,18 +67,33 @@ export default async function MeetingPage({ params, searchParams }: PageProps) {
           <b>Pauta da presidência</b>
           <p>{meeting.agenda || "Nenhum contexto adicional foi informado."}</p>
         </div>
-        <StartRoundButton meetingId={meeting.id} agents={agents ?? []} alreadyStarted={(messages ?? []).filter((message) => message.speaker_type === "agent" && message.round_number === 1).length >= 15} />
+
+        <StartRoundButton
+          meetingId={meeting.id}
+          agents={agents ?? []}
+          openingCount={openingCount}
+          phaseCounts={phaseCounts}
+        />
+
+        {phaseCounts.voting > 0 && (
+          <div className="empty-state" style={{ marginBottom: 18 }}>
+            <b>Placar da votação</b>
+            <p>Favoráveis: {voteTotals.approve ?? 0} · Contrários: {voteTotals.reject ?? 0} · Abstenções: {voteTotals.abstain ?? 0}</p>
+            <small>A votação é consultiva. A decisão final continua sendo da presidência.</small>
+          </div>
+        )}
+
         <div className="section-title">
           <div><span className="eyebrow">REGISTRO DA SESSÃO</span><h2>Mensagens e argumentos</h2></div>
-          <span className="section-count">{messages?.length ?? 0} REGISTROS</span>
+          <span className="section-count">{rows.length} REGISTROS</span>
         </div>
-        {messages && messages.length > 0 ? (
+        {rows.length > 0 ? (
           <div className="meeting-list">
-            {messages.map((message) => (
+            {rows.map((message) => (
               <article className="meeting-row" key={message.id}>
                 <span className="meeting-icon"><MessageSquareText size={17} /></span>
                 <div>
-                  <b>{message.speaker_type === "president" ? "Presidência" : message.agent_slug ?? "Sistema"}</b>
+                  <b>{message.speaker_type === "president" ? "Presidência" : message.agent_slug ?? "Sistema"} · {["Pauta", "Análise inicial", "Contestação", "Revisão", "Votação", "Síntese"].at(message.round_number) ?? `Etapa ${message.round_number}`}</b>
                   <small>{new Date(message.created_at).toLocaleString("pt-BR")}</small>
                   <p>{message.content}</p>
                 </div>
@@ -72,7 +103,7 @@ export default async function MeetingPage({ params, searchParams }: PageProps) {
         ) : (
           <div className="empty-state"><b>Nenhuma mensagem registrada ainda.</b></div>
         )}
-        <div className="auth-secure">◈ As análises são geradas individualmente pela API. As próximas fases de contestação, revisão e votação serão liberadas em etapas.</div>
+        <div className="auth-secure">◈ Cada etapa gera registros persistentes. Falhas de API podem ser retomadas sem apagar respostas já salvas. Nenhum voto substitui sua decisão como presidente.</div>
       </section>
     </main>
   );
