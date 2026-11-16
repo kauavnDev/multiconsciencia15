@@ -45,10 +45,25 @@ export async function POST(
     return NextResponse.json({ error: `A fase anterior ainda não terminou (${previousCount}/${expectedPrevious}).` }, { status: 409 });
   }
 
-  const { data: existing } = await supabase.from("meeting_messages").select("id")
+  const { data: existing } = await supabase.from("meeting_messages").select("id,content")
     .eq("meeting_id", meetingId).eq("agent_slug", agentSlug).eq("round_number", stage.round)
     .eq("speaker_type", "agent").maybeSingle();
-  if (existing) return NextResponse.json({ ok: true, duplicate: true, phase, agent: agentSlug });
+  if (existing) {
+    if (phase === "synthesis") {
+      const { data: savedMemory } = await supabase.from("agent_memories").select("id")
+        .eq("owner_id", auth.user.id).eq("source_meeting_id", meetingId)
+        .eq("scope", "collective").eq("memory_type", "summary").maybeSingle();
+      if (!savedMemory) {
+        await supabase.from("agent_memories").insert({
+          owner_id: auth.user.id, scope: "collective", agent_slug: null,
+          memory_type: "summary",
+          content: `Síntese da reunião "${meeting.title}":\\n\\n${existing.content}`.slice(0, 12000),
+          source_meeting_id: meetingId, is_active: true,
+        });
+      }
+    }
+    return NextResponse.json({ ok: true, duplicate: true, phase, agent: agentSlug });
+  }
 
   const { data: round, error: roundError } = await supabase.from("meeting_rounds").upsert({
     meeting_id: meetingId,
