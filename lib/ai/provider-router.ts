@@ -1,4 +1,4 @@
-export type AiProviderName = "gemini" | "groq" | "openrouter";
+export type AiProviderName = "gemini" | "groq" | "openrouter" | "openai";
 
 export type AiProvider = {
   name: AiProviderName;
@@ -50,7 +50,7 @@ function configuredProviders(allowPaid: boolean): AiProvider[] {
     label: "Google Gemini",
     baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
     apiKey: geminiKey,
-    model: process.env.GEMINI_MODEL || "gemini-2.5-flash",
+    model: process.env.GEMINI_MODEL || "gemini-3.8-flash",
     quality: 94,
     speed: 88,
     freeRoute: true,
@@ -83,6 +83,17 @@ function configuredProviders(allowPaid: boolean): AiProvider[] {
       freeRoute: isFreeModel,
     });
   }
+
+  if (allowPaid && process.env.OPENAI_API_KEY && process.env.OPENAI_MODEL) providers.push({
+    name: "openai",
+    label: "OpenAI",
+    baseUrl: "https://api.openai.com/v1/chat/completions",
+    apiKey: process.env.OPENAI_API_KEY,
+    model: process.env.OPENAI_MODEL,
+    quality: 100,
+    speed: 80,
+    freeRoute: false,
+  });
 
   return providers.filter((provider) => allowPaid || provider.freeRoute);
 }
