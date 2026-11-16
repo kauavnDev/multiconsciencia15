@@ -22,6 +22,8 @@ A orquestração das 15 inteligências e a execução de reuniões são etapas p
    - `supabase/migrations/0001_initial.sql`
    - `supabase/migrations/0002_data_api_grants.sql`
    - `supabase/migrations/0003_data_integrity.sql`
+   - `supabase/migrations/0004_foreign_key_indexes.sql`
+   - `supabase/migrations/0005_revoke_anon_access.sql`
 5. Em Supabase Auth > URL Configuration, configure a Site URL de produção e inclua os Redirect URLs usados pela aplicação:
    - `http://localhost:3000/auth/callback`
    - `https://SEU-DOMINIO/auth/callback`
@@ -45,9 +47,10 @@ A chave de API de IA, quando a orquestração for implementada, deverá existir 
 - Redirecionamentos de autenticação limitados à mesma origem.
 - Respostas que atualizam cookies de autenticação marcadas como privadas e não cacheáveis.
 - RLS habilitada em todas as tabelas do schema público.
+- Acesso `anon` revogado nas tabelas privadas e de agentes; somente usuários autenticados recebem os privilégios necessários.
 - Políticas de propriedade baseadas em `auth.uid()`.
 - Chaves secretas nunca devem ser publicadas no frontend ou no Git.
 
 ## Estado do produto
 
-A base de autenticação e persistência está preparada para ser ligada ao projeto Supabase. As reuniões reais, o debate multiagente, as votações e o fluxo de aprovação do presidente dependem da próxima etapa de implementação do backend de orquestração.
+A base de autenticação e persistência está conectada ao projeto Supabase. As migrações 0001–0005 foram aplicadas e verificadas. As reuniões reais, o debate multiagente, as votações e o fluxo de aprovação do presidente dependem da próxima etapa de implementação do backend de orquestração.
