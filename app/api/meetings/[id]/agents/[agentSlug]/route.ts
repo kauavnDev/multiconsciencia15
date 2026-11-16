@@ -41,7 +41,7 @@ export async function POST(
     .filter((memory) => memory.scope === "collective" || (memory.scope === "individual" && memory.agent_slug === agentSlug))
     .slice(0, 8)
     .map((memory) => `[${memory.scope}/${memory.memory_type}] ${memory.content}`)
-    .join("\n");
+    .join("\n").slice(-2500);
   const input = [
     `REUNIÃO: ${meeting.title}`,
     `PAUTA DA PRESIDÊNCIA: ${meeting.agenda || "Sem contexto adicional."}`,
