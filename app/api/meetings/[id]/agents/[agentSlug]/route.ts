@@ -24,7 +24,7 @@ export async function POST(
   if (!meeting) return NextResponse.json({ error: "Reunião não encontrada." }, { status: 404 });
   if (!agent) return NextResponse.json({ error: "Agente não encontrado." }, { status: 404 });
   const prefs = (preferenceEvent?.event_data ?? {}) as { mode?: string; selected_slugs?: string[] };
-  const expectedAgents = prefs.mode === "manual" ? Array.from(new Set([...(prefs.selected_slugs ?? []), "diretor-geral", "mediador"])) : [];
+  const expectedAgents = Array.isArray(prefs.selected_slugs) && prefs.selected_slugs.length ? Array.from(new Set([...prefs.selected_slugs, "diretor-geral", "mediador"])) : [];
   const expectedCount = expectedAgents.length || 15;
   if (expectedAgents.length && !expectedAgents.includes(agentSlug)) return NextResponse.json({ error: "Este especialista não foi convocado para a reunião." }, { status: 403 });
   if (meeting.status !== "draft" && meeting.status !== "running") {
