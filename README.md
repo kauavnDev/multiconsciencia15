@@ -29,7 +29,7 @@ A criação e o histórico de reuniões estão implementados. O banco comporta r
    - `supabase/migrations/0006_agent_rounds_memory_audit.sql`
    - `supabase/migrations/0007_orchestration_fk_indexes.sql`
    - `supabase/migrations/0008_unique_agent_round_replies.sql`
-   - `supabase/migrations/0008_unique_agent_round_replies.sql`
+   - `supabase/migrations/0009_ai_provider_fallback_resume.sql`
 5. Em Supabase Auth > URL Configuration, configure a Site URL de produção e inclua os Redirect URLs usados pela aplicação:
    - `http://localhost:3000/auth/callback`
    - `https://SEU-DOMINIO/auth/callback`
@@ -44,7 +44,7 @@ No Vercel, configure as duas variáveis públicas do Supabase para Production, P
 
 A chave publishable é apropriada para uso no cliente porque as tabelas expostas são protegidas por RLS. **Nunca** coloque `service_role`, chaves secretas do Supabase ou `OPENAI_API_KEY` em variáveis com prefixo `NEXT_PUBLIC_`, nem em arquivos commitados.
 
-Para habilitar a primeira rodada, configure `OPENAI_API_KEY` e `OPENAI_MODEL` somente como variáveis server-side da Vercel (sem prefixo `NEXT_PUBLIC_`). O botão da reunião chama cada agente em lotes de até três solicitações e salva as respostas individualmente. Sem essas variáveis, a aplicação informa que a API ainda não está configurada.
+Para habilitar a primeira rodada, configure uma ou mais chaves server-side: `GEMINI_API_KEY`, `GROQ_API_KEY` e `OPENROUTER_API_KEY`. Os modelos padrão são Gemini 3.8 Flash, GPT-OSS 120B via Groq e `openrouter/free`. O roteador classifica os provedores por qualidade estimada, velocidade e saúde recente, tenta automaticamente o próximo quando encontra limite/indisponibilidade e aplica cooldown aos provedores que falham. OpenRouter fica restrito a modelos gratuitos (`:free` ou `openrouter/free`) por padrão.\n\nAs tarefas são registradas em `agent_task_runs` antes da chamada externa, com snapshot do prompt/contexto, tentativas, provedor/modelo usados e estado. Se todas as APIs falharem, a tarefa fica pausada e pode ser retomada com o mesmo snapshot ao repetir a rodada. A saúde dos provedores é persistida por usuário em `ai_provider_health`.\n\nProvedores pagos ficam bloqueados por padrão. Só habilite `AI_ALLOW_PAID=true` se decidir permitir cobrança; nesse caso, `OPENAI_API_KEY` e `OPENAI_MODEL` também podem ser usados. Nunca envie chaves para o navegador ou para o Git. O botão da reunião chama agentes em lotes de até três solicitações e permite repetir uma rodada incompleta sem duplicar respostas.
 
 ## Segurança
 
@@ -59,4 +59,4 @@ Para habilitar a primeira rodada, configure `OPENAI_API_KEY` e `OPENAI_MODEL` so
 
 ## Estado do produto
 
-A base de autenticação e persistência está conectada ao projeto Supabase. As migrações 0001–0008 foram aplicadas e verificadas. As reuniões reais, o debate multiagente, as votações e o fluxo de aprovação do presidente dependem da próxima etapa de implementação do backend de orquestração.
+A base de autenticação e persistência está conectada ao projeto Supabase. As migrações 0001–0009 foram aplicadas e verificadas no projeto principal. As reuniões reais, o debate multiagente, as votações e o fluxo de aprovação do presidente dependem da próxima etapa de implementação do backend de orquestração.
