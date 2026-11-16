@@ -42,7 +42,7 @@ export default async function NewMeetingPage({ searchParams }: PageProps) {
           <input className="field" id="title" name="title" required maxLength={160} placeholder="Ex.: Como lançar meu próximo produto?" />
           <label className="field-label" htmlFor="agenda">Pauta e contexto</label>
           <textarea className="field" id="agenda" name="agenda" rows={7} maxLength={12000} placeholder="Explique o desafio, o objetivo e o que você quer decidir..." />
-          <ParticipantPicker agents={agents ?? []} />
+          <ParticipantPicker agents={agents ?? []} initialMode={String((data.user.user_metadata?.council_preferences as {participation?:string}|undefined)?.participation ?? "hybrid")} />
           <p className="field-hint">A reunião será salva no seu espaço privado. O Diretor-Geral coordena; você pode definir ou complementar a equipe.</p>
           <button className="button button-primary button-full button-large" type="submit"><Plus size={18} /> Criar reunião</button>
         </form>
