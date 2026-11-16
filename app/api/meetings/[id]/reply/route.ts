@@ -20,7 +20,7 @@ export async function POST(_request:Request,{params}:{params:Promise<{id:string}
    input:`REUNIÃO: ${meeting.title}\nPAUTA: ${meeting.agenda??""}\nHISTÓRICO RECENTE:\n${transcript}\n\nResponda à última mensagem da Presidência.`,
    health:health??[],allowPaid:false
   });
-  const chatRound = 6 + (messages ?? []).filter((item) => item.agent_slug === "diretor-geral" && item.round_number >= 6).length;
+  const chatRound = Math.floor(Date.now() / 1000);
   const {data:message,error:insertError}=await supabase.from("meeting_messages").insert({meeting_id:id,owner_id:auth.user.id,agent_slug:"diretor-geral",speaker_type:"agent",content:result.text,round_number:chatRound}).select("id,speaker_type,agent_slug,content,round_number,created_at").single();
   if(insertError||!message)return NextResponse.json({error:"Resposta gerada, mas não foi possível salvá-la."},{status:500});
   return NextResponse.json({ok:true,message,provider:result.provider,model:result.model});
