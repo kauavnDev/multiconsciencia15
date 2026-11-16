@@ -26,10 +26,11 @@ export async function POST(
   const { data: auth, error: authError } = await supabase.auth.getUser();
   if (authError || !auth.user) return NextResponse.json({ error: "Faça login para continuar." }, { status: 401 });
 
-  const [{ data: meeting }, { data: agent }, { data: allMessages }] = await Promise.all([
+  const [{ data: meeting }, { data: agent }, { data: allMessages }, { data: preferenceEvent }] = await Promise.all([
     supabase.from("meetings").select("id,title,agenda,status").eq("id", meetingId).maybeSingle(),
     supabase.from("agents").select("slug,name,specialty,system_prompt").eq("slug", agentSlug).eq("is_fixed", true).maybeSingle(),
     supabase.from("meeting_messages").select("agent_slug,speaker_type,content,round_number,created_at").eq("meeting_id", meetingId).order("created_at", { ascending: true }),
+    supabase.from("meeting_events").select("event_data").eq("meeting_id", meetingId).eq("event_type", "participant_preferences").maybeSingle(),
   ]);
 
   if (!meeting) return NextResponse.json({ error: "Reunião não encontrada." }, { status: 404 });
@@ -85,7 +86,7 @@ export async function POST(
     await supabase.from("meeting_rounds").update({ status: "running", started_at: new Date().toISOString() }).eq("id", roundId);
   }
 
-  const transcript = (allMessages ?? []).map((m) => {
+  const transcript = (allMessages ?? []).filter((m) => expectedAgents.length === 0 || m.speaker_type === "president" || expectedAgents.includes(m.agent_slug ?? "")).map((m) => {
     const who = m.speaker_type === "president" ? "PRESIDÊNCIA" : m.agent_slug || "SISTEMA";
     return `[${who} | etapa ${m.round_number}] ${m.content}`;
   }).join("\n\n").slice(-3500);
@@ -98,6 +99,7 @@ export async function POST(
   };
 
   const input = [
+    expectedAgents.length ? `EQUIPE CONVOCADA: ${expectedAgents.join(", ")}. Converse com as contribuições destes participantes.` : "EQUIPE: o conselho completo está disponível nesta sessão.",
     `REUNIÃO: ${meeting.title}`,
     `PAUTA DA PRESIDÊNCIA: ${meeting.agenda || "Sem contexto adicional."}`,
     `ETAPA: ${stage.label}`,
@@ -216,7 +218,8 @@ export async function POST(
 
     const { count } = await supabase.from("meeting_messages").select("id", { count: "exact", head: true })
       .eq("meeting_id", meetingId).eq("round_number", stage.round).eq("speaker_type", "agent");
-    if ((count ?? 0) >= stage.expected) {
+    const requiredResponses = phase === "synthesis" ? 1 : expectedCount;
+    if ((count ?? 0) >= requiredResponses) {
       await supabase.from("meeting_rounds").update({
         status: "completed", summary: phase === "synthesis" ? result.text.slice(0, 12000) : "",
         completed_at: new Date().toISOString(),
