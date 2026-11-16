@@ -14,14 +14,19 @@ export async function POST(
     return NextResponse.json({ error: "Faça login para iniciar a rodada." }, { status: 401 });
   }
 
-  const [{ data: meeting }, { data: agent }, { data: memories }] = await Promise.all([
+  const [{ data: meeting }, { data: agent }, { data: memories }, { data: preferenceEvent }] = await Promise.all([
     supabase.from("meetings").select("id,title,agenda,status").eq("id", meetingId).maybeSingle(),
     supabase.from("agents").select("slug,name,specialty,system_prompt").eq("slug", agentSlug).eq("is_fixed", true).maybeSingle(),
     supabase.from("agent_memories").select("scope,agent_slug,memory_type,content").eq("owner_id", auth.user.id).eq("is_active", true).order("updated_at", { ascending: false }).limit(30),
+    supabase.from("meeting_events").select("event_data").eq("meeting_id", meetingId).eq("event_type", "participant_preferences").maybeSingle(),
   ]);
 
   if (!meeting) return NextResponse.json({ error: "Reunião não encontrada." }, { status: 404 });
   if (!agent) return NextResponse.json({ error: "Agente não encontrado." }, { status: 404 });
+  const prefs = (preferenceEvent?.event_data ?? {}) as { mode?: string; selected_slugs?: string[] };
+  const expectedAgents = prefs.mode === "manual" ? Array.from(new Set([...(prefs.selected_slugs ?? []), "diretor-geral", "mediador"])) : [];
+  const expectedCount = expectedAgents.length || 15;
+  if (expectedAgents.length && !expectedAgents.includes(agentSlug)) return NextResponse.json({ error: "Este especialista não foi convocado para a reunião." }, { status: 403 });
   if (meeting.status !== "draft" && meeting.status !== "running") {
     return NextResponse.json({ error: "Esta reunião não aceita novas respostas." }, { status: 409 });
   }
@@ -159,7 +164,7 @@ export async function POST(
     const { count } = await supabase.from("meeting_messages").select("id", { count: "exact", head: true })
       .eq("meeting_id", meetingId).eq("round_number", 1).eq("speaker_type", "agent");
 
-    if (count === 15 && round) {
+    if (count === expectedCount && round) {
       await supabase.from("meeting_rounds").update({ status: "completed", completed_at: new Date().toISOString() }).eq("id", round.id);
       await supabase.from("meeting_events").insert({
         meeting_id: meetingId,
