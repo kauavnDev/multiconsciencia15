@@ -77,21 +77,7 @@ create policy "Messages are private to their owner" on public.meeting_messages
 create policy "Decisions are private to their owner" on public.decisions
  for all to authenticated using ((select auth.uid()) = owner_id) with check ((select auth.uid()) = owner_id);
 
-create or replace function public.handle_new_user()
-returns trigger language plpgsql security invoker set search_path = ''
-as $$
-begin
-  insert into public.profiles (id, display_name)
-  values (new.id, coalesce(new.raw_user_meta_data ->> 'display_name', 'Presidente'))
-  on conflict (id) do nothing;
-  return new;
-end;
-$$;
-
-drop trigger if exists on_auth_user_created on auth.users;
-create trigger on_auth_user_created
- after insert on auth.users
- for each row execute procedure public.handle_new_user();
+-- Profiles are provisioned by the application after first sign-in; no Auth trigger is required.
 
 insert into public.agents (slug,name,specialty,system_prompt) values
 ('diretor-geral','Diretor-Geral','Coordenação','Organize a reunião, distribua turnos e garanta que posições divergentes sejam ouvidas. Nunca imponha consenso.'),
