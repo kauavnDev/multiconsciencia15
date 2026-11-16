@@ -9,11 +9,12 @@ Conselho de inteligências artificiais independentes. Aplicação web em Next.js
 - Painel privado com os 15 conselheiros fixos.
 - Criação de reuniões com pauta, histórico persistente e acesso privado.
 - Estrutura de banco para perfis, reuniões, mensagens, decisões, rodadas, votos, memórias individuais/coletivas e trilha de auditoria.
+- Núcleo de Operações em evolução: mandatos, missões, responsáveis, revisão cruzada e histórico de execução.
 - Perfis de instrução especializados para os 15 agentes fixos.
 - RLS (Row Level Security) e vínculos que impedem misturar dados de usuários diferentes.
 - Layout responsivo para celular e desktop.
 
-A criação e o histórico de reuniões estão implementados. O fluxo multiagente executa análise independente, contestação, revisão individual de posições, votação independente e síntese do Mediador. As respostas, tentativas, provedor/modelo, votos, eventos e checkpoints são persistidos. A presidência registra a decisão final (aprovar/rejeitar), que encerra a reunião. As chamadas são limitadas a três agentes simultâneos e tarefas incompletas podem ser retomadas. A experiência em tempo real e memórias individuais automáticas continuam como melhorias futuras.
+O Núcleo de Operações começa com o registro privado de mandatos; o planejamento, a aprovação presidencial e a execução de missões serão entregues em etapas seguintes. A migration 0010 adiciona o modelo de dados e corrige o evento `participant_preferences`, já utilizado pela convocação do conselho.\n\nA criação e o histórico de reuniões estão implementados. O fluxo multiagente executa análise independente, contestação, revisão individual de posições, votação independente e síntese do Mediador. As respostas, tentativas, provedor/modelo, votos, eventos e checkpoints são persistidos. A presidência registra a decisão final (aprovar/rejeitar), que encerra a reunião. As chamadas são limitadas a três agentes simultâneos e tarefas incompletas podem ser retomadas. A experiência em tempo real e memórias individuais automáticas continuam como melhorias futuras.
 
 ## Configuração local
 
@@ -30,6 +31,7 @@ A criação e o histórico de reuniões estão implementados. O fluxo multiagent
    - `supabase/migrations/0007_orchestration_fk_indexes.sql`
    - `supabase/migrations/0008_unique_agent_round_replies.sql`
    - `supabase/migrations/0009_ai_provider_fallback_resume.sql`
+   - `supabase/migrations/0010_operations_engine.sql`
 5. Em Supabase Auth > URL Configuration, configure a Site URL de produção e inclua os Redirect URLs usados pela aplicação:
    - `http://localhost:3000/auth/callback`
    - `https://SEU-DOMINIO/auth/callback`
