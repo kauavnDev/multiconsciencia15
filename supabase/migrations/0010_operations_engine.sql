@@ -61,6 +61,7 @@ create table if not exists public.mission_tasks (
   completed_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
+  unique (id, owner_id),
   unique (id, initiative_id, owner_id),
   foreign key (initiative_id, owner_id)
     references public.initiatives(id, owner_id) on delete cascade,
