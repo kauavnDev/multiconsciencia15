@@ -31,7 +31,7 @@ create table public.agent_memories (
   updated_at timestamptz not null default now(),
   check ((scope = 'individual' and agent_slug is not null) or (scope = 'collective' and agent_slug is null)),
   foreign key (source_meeting_id, owner_id)
-    references public.meetings(id, owner_id) on delete set null
+    references public.meetings(id, owner_id) on delete set null (source_meeting_id)
 );
 
 create table public.meeting_votes (
