@@ -49,7 +49,7 @@ export async function createMeeting(formData: FormData) {
   const { error: eventError } = await supabase.from("meeting_events").insert({
     meeting_id: meeting.id, owner_id: data.user.id, actor_type: "president",
     event_type: "participant_preferences",
-    event_data: { mode: ["director","hybrid","manual"].includes(participantMode) ? participantMode : "director", selected_slugs: roster },
+    event_data: { mode: ["director","hybrid","manual"].includes(participantMode) ? participantMode : "director", selected_slugs: roster, president_selected_slugs: selectedParticipants },
   });
   if (eventError) redirect(`/meetings/${meeting.id}?warning=participants`);
 
