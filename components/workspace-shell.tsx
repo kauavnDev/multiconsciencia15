@@ -6,6 +6,7 @@ import LogoutButton from "@/components/logout-button";
 const items = [
   { href: "/dashboard", label: "Visão geral", icon: Activity, key: "dashboard" },
   { href: "/meetings", label: "Reuniões", icon: CalendarDays, key: "meetings" },
+  { href: "/operations", label: "Operações", icon: BriefcaseBusiness, key: "operations" },
   { href: "/council", label: "Conselho", icon: Users, key: "council" },
   { href: "/office", label: "Escritório", icon: BriefcaseBusiness, key: "office" },
   { href: "/memory", label: "Memória", icon: Sparkles, key: "memory" },
