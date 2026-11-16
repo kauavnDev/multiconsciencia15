@@ -1,3 +1,5 @@
+import AiProviderTest from "./ai-provider-test";
+
 export default function AiProviderStatus() {
   const providers = [
     { name: "Google Gemini", configured: Boolean(process.env.GEMINI_API_KEY) },
@@ -24,6 +26,7 @@ export default function AiProviderStatus() {
         ))}
       </div>
       <small style={{ display: "block", marginTop: 10, color: "#8995ad" }}>Provedores pagos permanecem bloqueados por segurança.</small>
+      <AiProviderTest />
     </section>
   );
 }
