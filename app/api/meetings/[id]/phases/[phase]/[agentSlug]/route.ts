@@ -18,7 +18,7 @@ export async function POST(
   const { id: meetingId, phase, agentSlug } = await params;
   if (!(phase in stages)) return NextResponse.json({ error: "Fase inválida." }, { status: 400 });
   const stage = stages[phase as Stage];
-  if ((phase === "synthesis" && agentSlug !== "mediador") || (phase !== "synthesis" && agentSlug === "mediador" && false)) {
+  if (phase === "synthesis" && agentSlug !== "mediador") {
     return NextResponse.json({ error: "Agente não permitido nesta fase." }, { status: 400 });
   }
 
@@ -179,6 +179,25 @@ export async function POST(
       status: "completed", output_text: result.text, provider: result.provider, model: result.model,
       last_error: "", completed_at: new Date().toISOString(), updated_at: new Date().toISOString(),
     }).eq("id", task.id);
+
+    if (phase === "synthesis") {
+      const { error: memoryError } = await supabase.from("agent_memories").insert({
+        owner_id: auth.user.id,
+        scope: "collective",
+        agent_slug: null,
+        memory_type: "summary",
+        content: `Síntese da reunião "${meeting.title}":\\n\\n${result.text}`.slice(0, 12000),
+        source_meeting_id: meetingId,
+        is_active: true,
+      });
+      if (memoryError) {
+        await supabase.from("meeting_events").insert({
+          meeting_id: meetingId, owner_id: auth.user.id, actor_type: "system",
+          event_type: "round_completed",
+          event_data: { phase, warning: "synthesis_memory_not_saved", error: memoryError.message.slice(0, 300) },
+        });
+      }
+    }
 
     const { count } = await supabase.from("meeting_messages").select("id", { count: "exact", head: true })
       .eq("meeting_id", meetingId).eq("round_number", stage.round).eq("speaker_type", "agent");
