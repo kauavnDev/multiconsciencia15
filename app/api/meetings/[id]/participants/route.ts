@@ -15,9 +15,10 @@ export async function POST(request:Request,{params}:{params:Promise<{id:string}>
  if(!meeting) return NextResponse.json({error:"Reunião não encontrada."},{status:404});
  if(meeting.status==="completed"||meeting.status==="cancelled") return NextResponse.json({error:"A reunião já foi encerrada."},{status:409});
  if(!agent) return NextResponse.json({error:"Especialista não encontrado."},{status:404});
- const old=(pref?.event_data??{}) as {mode?:string;selected_slugs?:string[]};
+ if(synthesis) return NextResponse.json({error:"A síntese já foi concluída. Não é possível alterar a equipe depois do encerramento do debate."},{status:409});
+ const old=(pref?.event_data??{}) as {mode?:string;selected_slugs?:string[];president_selected_slugs?:string[];director_reviewed?:boolean;director_reason?:string};
  const selected=Array.from(new Set([...(old.selected_slugs??[]),slug,"diretor-geral","mediador"]));
- const eventData={mode:"manual",selected_slugs:selected};
+ const eventData={...old,mode:"hybrid",selected_slugs:selected,president_selected_slugs:Array.from(new Set([...(old.president_selected_slugs??[]),slug]))};
  const result=pref?.id
   ? await supabase.from("meeting_events").update({event_data:eventData}).eq("id",pref.id).eq("meeting_id",id)
   : await supabase.from("meeting_events").insert({meeting_id:id,owner_id:auth.user.id,actor_type:"president",event_type:"participant_preferences",event_data:eventData});
