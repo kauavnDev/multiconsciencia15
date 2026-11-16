@@ -13,6 +13,19 @@ export async function createMeeting(formData: FormData) {
   const agenda = String(formData.get("agenda") ?? "").trim();
   const participantMode = String(formData.get("participant_mode") ?? "director");
   const selectedParticipants = formData.getAll("participants").map(String).filter((slug) => /^[a-z0-9-]{2,50}$/.test(slug)).slice(0, 15);
+  const topic = (title + " " + agenda).toLowerCase();
+  const topicRules: Array<{terms:string[];agents:string[]}> = [
+    {terms:["dinheiro","finance","orçamento","custo","preço","receita","lucro","caixa","investimento"],agents:["economista","analista-dados","gestor-riscos","auditor","estrategista"]},
+    {terms:["app","aplicativo","software","site","sistema","tecnologia","api","produto","plataforma"],agents:["engenheiro","designer-solucoes","inventor","analista-dados","planejador","gestor-riscos"]},
+    {terms:["marketing","venda","cliente","mercado","publicidade","anúncio","marca","concorrência"],agents:["especialista-mercado","estrategista","analista-dados","economista","advogado-diabo"]},
+    {terms:["lei","contrato","lgpd","privacidade","segurança","risco","regulação"],agents:["auditor","gestor-riscos","engenheiro","advogado-diabo","cientista"]},
+    {terms:["pesquisa","estudo","ciência","dados","experimento","hipótese"],agents:["cientista","analista-dados","inventor","auditor","visionario"]},
+  ];
+  const matched=topicRules.filter(rule=>rule.terms.some(term=>topic.includes(term))).flatMap(rule=>rule.agents);
+  const autoRoster=Array.from(new Set(["diretor-geral","mediador",...(matched.length?matched:["estrategista","analista-dados","advogado-diabo","gestor-riscos"])]));
+  const roster=participantMode==="manual"
+    ? Array.from(new Set([...selectedParticipants,"diretor-geral","mediador"]))
+    : participantMode==="hybrid" ? Array.from(new Set([...autoRoster,...selectedParticipants])) : autoRoster;
 
   if (!title || title.length > 160 || agenda.length > 12000) {
     redirect("/meetings/new?error=invalid");
@@ -34,7 +47,7 @@ export async function createMeeting(formData: FormData) {
   const { error: eventError } = await supabase.from("meeting_events").insert({
     meeting_id: meeting.id, owner_id: data.user.id, actor_type: "president",
     event_type: "participant_preferences",
-    event_data: { mode: ["director","hybrid","manual"].includes(participantMode) ? participantMode : "director", selected_slugs: selectedParticipants },
+    event_data: { mode: ["director","hybrid","manual"].includes(participantMode) ? participantMode : "director", selected_slugs: roster },
   });
   if (eventError) redirect(`/meetings/${meeting.id}?warning=participants`);
 
