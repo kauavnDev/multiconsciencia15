@@ -16,7 +16,7 @@ type Result = { ok: boolean; error: string; model?: string };
 
 const phases: { key: Phase; title: string; description: string; expected: number; agents: string[] | "all" }[] = [
   { key: "challenge", title: "Contestação", description: "Os especialistas confrontam as análises e apontam falhas, riscos e premissas frágeis.", expected: 15, agents: "all" },
-  { key: "revision", title: "Revisão de posições", description: "Cada agente reconsidera sua posição sem ser obrigado a concordar com a maioria.", expected: expectedParticipants, agents: "all" },
+  { key: "revision", title: "Revisão de posições", description: "Cada agente reconsidera sua posição sem ser obrigado a concordar com a maioria.", expected: 15, agents: "all" },
   { key: "voting", title: "Votação independente", description: "Cada conselheiro registra aprovar, rejeitar ou abster-se, com justificativa.", expected: expectedParticipants, agents: "all" },
   { key: "synthesis", title: "Síntese do Mediador", description: "O Mediador registra acordos, divergências, votos e questões em aberto, sem forçar consenso.", expected: 1, agents: ["mediador"] },
 ];
