@@ -88,7 +88,7 @@ export async function POST(
   }).eq("id", task.id);
 
   const { data: health } = await supabase.from("ai_provider_health")
-    .select("provider,consecutive_failures,cooldown_until,average_latency_ms")
+    .select("provider,consecutive_failures,cooldown_until,average_latency_ms,last_success_at,last_failure_at")
     .eq("owner_id", auth.user.id);
 
   const attemptLog = Array.isArray(task.attempt_log) ? [...task.attempt_log] as ProviderAttempt[] : [];
@@ -109,8 +109,8 @@ export async function POST(
       provider: attempt.provider,
       consecutive_failures: failures,
       cooldown_until: attempt.ok ? null : new Date(Date.now() + cooldownSeconds * 1000).toISOString(),
-      last_success_at: attempt.ok ? new Date().toISOString() : (previous as { last_success_at?: string | null } | undefined)?.last_success_at ?? null,
-      last_failure_at: attempt.ok ? (previous as { last_failure_at?: string | null } | undefined)?.last_failure_at ?? null : new Date().toISOString(),
+      last_success_at: attempt.ok ? new Date().toISOString() : previous?.last_success_at ?? null,
+      last_failure_at: attempt.ok ? previous?.last_failure_at ?? null : new Date().toISOString(),
       average_latency_ms: averageLatency,
       updated_at: new Date().toISOString(),
     }, { onConflict: "owner_id,provider" });
