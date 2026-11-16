@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 type Agent={slug:string;name:string;specialty:string};
-export default function ParticipantPicker({agents}:{agents:Agent[]}){const [mode,setMode]=useState("director");const [selected,setSelected]=useState<string[]>([]);return <section className="workspace-card" style={{display:"grid",gap:12}}>
+export default function ParticipantPicker({agents,initialMode}:{agents:Agent[];initialMode:string}){const [mode,setMode]=useState(["director","manual","hybrid"].includes(initialMode)?initialMode:"hybrid");const [selected,setSelected]=useState<string[]>([]);return <section className="workspace-card" style={{display:"grid",gap:12}}>
 <div><b>Quem participa desta reunião?</b><p className="field-hint">O Diretor-Geral será o coordenador. Você pode definir os especialistas manualmente ou deixar a seleção para o Diretor.</p></div>
 <div style={{display:"grid",gap:8}}>{[{v:"director",t:"Diretor-Geral escolhe (automático)"},{v:"hybrid",t:"Diretor escolhe; posso adicionar pessoas"},{v:"manual",t:"Quero escolher os participantes"}].map(x=><label key={x.v} style={{display:"flex",gap:9,alignItems:"center",fontSize:12,color:"#cbd5e7"}}><input type="radio" name="participant_mode" value={x.v} checked={mode===x.v} onChange={()=>setMode(x.v)}/>{x.t}</label>)}</div>
 
