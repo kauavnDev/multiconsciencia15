@@ -7,11 +7,12 @@ Conselho de inteligências artificiais independentes. Aplicação web em Next.js
 - Cadastro, login, logout e recuperação de senha por e-mail.
 - Sessão SSR com cookies e validação de identidade no servidor.
 - Painel privado com os 15 conselheiros fixos.
+- Criação de reuniões com pauta, histórico persistente e acesso privado.
 - Estrutura de banco para perfis, reuniões, mensagens e decisões.
 - RLS (Row Level Security) e vínculos que impedem misturar dados de usuários diferentes.
 - Layout responsivo para celular e desktop.
 
-A orquestração das 15 inteligências e a execução de reuniões são etapas posteriores; a interface não deve apresentar uma reunião simulada como se fosse um debate real.
+A criação e o histórico de reuniões já estão implementados. A orquestração das 15 inteligências, as rodadas de debate, revisão de posições e votação ainda são etapas posteriores; a interface não deve apresentar uma reunião simulada como se fosse um debate real.
 
 ## Configuração local
 
