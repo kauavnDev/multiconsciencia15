@@ -76,3 +76,10 @@ textarea.field{height:auto;min-height:150px;padding:12px 14px;resize:vertical;li
 .profile-note{display:flex;gap:10px;align-items:flex-start;margin-top:14px;padding:13px 15px;border:1px solid #62e7df24;border-radius:10px;background:#62e7df09;color:#8796ad;font-size:10px;line-height:1.7}.profile-note svg{flex:none;color:var(--cyan);margin-top:1px}
 @media(max-width:1100px){.council-character-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.council-character-grid{grid-template-columns:1fr}.council-character-card{grid-template-columns:105px minmax(0,1fr);min-height:176px}.agent-profile-hero{padding:22px 18px;gap:12px;min-height:190px}.agent-profile-art{width:112px;height:130px;transform:scale(.82)}.agent-profile-intro h1{font-size:24px}.agent-profile-intro>p{font-size:11px}.agent-profile-tags{gap:5px}.agent-profile-tags span{font-size:8px;padding:6px 7px}.agent-profile-grid{grid-template-columns:1fr}.profile-design-card{grid-column:auto}.agent-profile-watermark{font-size:55px;right:12px}.profile-back{align-items:flex-start;gap:10px}.robot-size-large{transform:scale(1.35)}}
+
+
+.dashboard-agent-card{min-width:0}.dashboard-robot-thumb{width:38px;height:42px;display:grid;place-items:center;overflow:hidden;flex:none;border-radius:9px;background:radial-gradient(ellipse,color-mix(in srgb,var(--robot-color,#62e7df) 15%,transparent),transparent)}
+.dashboard-robot-thumb .robot-portrait{transform:scale(.47);transform-origin:center}
+.office-agent-head{display:flex;align-items:center;gap:13px;min-height:94px}.office-agent-head .robot-portrait{transform:scale(.72);transform-origin:center}.office-agent-head .agent-info b{font-size:12px}.office-agent-head .agent-info small{font-size:10px}
+.office-booth:before{content:"";position:absolute;left:0;top:0;width:3px;height:100%;background:var(--agent-color);opacity:.65}
+.office-booth .booth-desk{position:relative;z-index:1}
