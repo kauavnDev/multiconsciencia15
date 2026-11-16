@@ -50,8 +50,8 @@ export default function StartRoundButton({ meetingId, agents, openingCount, phas
     let lastError = "";
     const models = new Set<string>();
 
-    for (let i = 0; i < targets.length; i += 1) {
-      const batch = targets.slice(i, i + 1);
+    for (let i = 0; i < targets.length; i += 3) {
+      const batch = targets.slice(i, i + 3);
       setMessage(`${batch[0]?.name ?? "Conselheiro"} está analisando e preparando sua resposta...`);
       const results: Result[] = await Promise.all(batch.map(async (agent) => {
         try {
