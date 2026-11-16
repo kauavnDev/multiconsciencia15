@@ -27,7 +27,7 @@ export async function POST(
   const expectedVotes = Array.isArray(prefs.selected_slugs) && prefs.selected_slugs.length ? new Set([...prefs.selected_slugs, "diretor-geral", "mediador"]).size : 15;
   if (meeting.status === "completed") return NextResponse.json({ error: "Esta reunião já recebeu uma decisão." }, { status: 409 });
   if (!synthesis || (votes?.length ?? 0) < expectedVotes) {
-    return NextResponse.json({ error: "Conclua a síntese e a votação dos ${expectedVotes} conselheiros convocados antes de decidir." }, { status: 409 });
+    return NextResponse.json({ error: `Conclua a síntese e a votação dos ${expectedVotes} conselheiros convocados antes de decidir.` }, { status: 409 });
   }
 
   const voteSnapshot = Object.fromEntries((votes ?? []).map((vote) => [vote.agent_slug, {
