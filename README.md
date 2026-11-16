@@ -13,7 +13,7 @@ Conselho de inteligências artificiais independentes. Aplicação web em Next.js
 - RLS (Row Level Security) e vínculos que impedem misturar dados de usuários diferentes.
 - Layout responsivo para celular e desktop.
 
-A criação e o histórico de reuniões estão implementados. O banco comporta rodadas, votos, memórias e auditoria, e os 15 prompts foram especializados. A primeira rodada já possui endpoint server-side para chamar cada agente separadamente e salvar as respostas, com concorrência limitada a três chamadas simultâneas. As fases de contestação, revisão, votação, síntese e a experiência em tempo real ainda estão em desenvolvimento.
+A criação e o histórico de reuniões estão implementados. O fluxo multiagente executa análise independente, contestação, revisão individual de posições, votação independente e síntese do Mediador. As respostas, tentativas, provedor/modelo, votos, eventos e checkpoints são persistidos. A presidência registra a decisão final (aprovar/rejeitar), que encerra a reunião. As chamadas são limitadas a três agentes simultâneos e tarefas incompletas podem ser retomadas. A experiência em tempo real e memórias individuais automáticas continuam como melhorias futuras.
 
 ## Configuração local
 
@@ -37,7 +37,7 @@ A criação e o histórico de reuniões estão implementados. O banco comporta r
 
 ## Variáveis de ambiente
 
-No Vercel, configure as duas variáveis públicas do Supabase para Production, Preview e Development:
+No Render (ou Vercel), configure as duas variáveis públicas do Supabase no ambiente de execução:
 
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
@@ -59,4 +59,4 @@ Para habilitar a primeira rodada, configure uma ou mais chaves server-side: `GEM
 
 ## Estado do produto
 
-A base de autenticação e persistência está conectada ao projeto Supabase. As migrações 0001–0009 foram aplicadas e verificadas no projeto principal. As reuniões reais, o debate multiagente, as votações e o fluxo de aprovação do presidente dependem da próxima etapa de implementação do backend de orquestração.
+A base de autenticação e persistência está conectada ao projeto Supabase. As migrações 0001–0009 foram aplicadas e verificadas no projeto principal. O debate multiagente, os votos, a síntese, a memória coletiva de reuniões e a decisão final da presidência estão implementados no backend. A integração deve ser validada no ambiente Render com as chaves dos provedores configuradas; o painel mostra quais chaves estão presentes e oferece um teste real de conectividade usando somente provedores gratuitos.
