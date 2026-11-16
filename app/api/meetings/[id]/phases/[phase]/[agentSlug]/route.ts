@@ -39,9 +39,17 @@ export async function POST(
     return NextResponse.json({ error: "Esta reunião já foi encerrada." }, { status: 409 });
   }
 
+  const prefs = (preferenceEvent?.event_data ?? {}) as { mode?: string; selected_slugs?: string[] };
+  const expectedAgents = Array.isArray(prefs.selected_slugs) && prefs.selected_slugs.length
+    ? Array.from(new Set([...prefs.selected_slugs, "diretor-geral", "mediador"]))
+    : [];
+  const expectedCount = expectedAgents.length || 15;
+  if (phase !== "synthesis" && expectedAgents.length && !expectedAgents.includes(agentSlug)) {
+    return NextResponse.json({ error: "Este especialista não foi convocado para a reunião." }, { status: 403 });
+  }
   const previousRound = stage.requiredPrevious;
-  const previousCount = (allMessages ?? []).filter((m) => m.speaker_type === "agent" && m.round_number === previousRound).length;
-  const expectedPrevious = previousRound === 4 ? 15 : 15;
+  const previousCount = (allMessages ?? []).filter((m) => m.speaker_type === "agent" && m.round_number === previousRound && (expectedAgents.length === 0 || expectedAgents.includes(m.agent_slug ?? ""))).length;
+  const expectedPrevious = expectedCount;
   if (previousCount < expectedPrevious) {
     return NextResponse.json({ error: `A fase anterior ainda não terminou (${previousCount}/${expectedPrevious}).` }, { status: 409 });
   }
