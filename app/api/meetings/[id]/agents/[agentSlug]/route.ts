@@ -64,12 +64,12 @@ export async function POST(
     last_error: "",
     started_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-  }, { onConflict: "meeting_id,agent_slug,phase,round_number" });
+  }, { onConflict: "meeting_id,agent_slug,phase,round_number", ignoreDuplicates: true });
 
   if (taskError) return NextResponse.json({ error: "Não foi possível salvar o ponto de retomada da tarefa." }, { status: 500 });
 
   const { data: task } = await supabase.from("agent_task_runs")
-    .select("id,attempt_log")
+    .select("id,attempt_log,input_snapshot")
     .eq("meeting_id", meetingId)
     .eq("agent_slug", agentSlug)
     .eq("phase", "opening")
@@ -77,6 +77,15 @@ export async function POST(
     .single();
 
   if (!task) return NextResponse.json({ error: "Ponto de retomada não encontrado." }, { status: 500 });
+
+  const savedSnapshot = task.input_snapshot as { system_prompt?: string; input?: string } | null;
+  const resumedSystemPrompt = savedSnapshot?.system_prompt || agent.system_prompt;
+  const resumedInput = savedSnapshot?.input || input;
+  await supabase.from("agent_task_runs").update({
+    status: "running",
+    last_error: "",
+    updated_at: new Date().toISOString(),
+  }).eq("id", task.id);
 
   const { data: health } = await supabase.from("ai_provider_health")
     .select("provider,consecutive_failures,cooldown_until,average_latency_ms")
@@ -109,8 +118,8 @@ export async function POST(
 
   try {
     const result = await runWithBestAvailableProvider({
-      systemPrompt: agent.system_prompt,
-      input,
+      systemPrompt: resumedSystemPrompt,
+      input: resumedInput,
       health: health ?? [],
       allowPaid: process.env.AI_ALLOW_PAID === "true",
       onAttempt: recordAttempt,
