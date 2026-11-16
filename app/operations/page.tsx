@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Activity, ArrowUpRight, BriefcaseBusiness, Flag, Plus, Target } from "lucide-react";
+import { BriefcaseBusiness, Flag, Plus, Target } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import WorkspaceShell from "@/components/workspace-shell";
 import { createInitiative } from "./actions";
@@ -43,14 +43,14 @@ export default async function OperationsPage({ searchParams }: Props) {
     <section className="dash-section">
       <div className="section-title"><div><span className="eyebrow">ABRIR UM MANDATO</span><h2>Defina o objetivo</h2></div><span className="section-count">VOCÊ AUTORIZA O INÍCIO</span></div>
       <form action={createInitiative} className="auth-form">
-        <label htmlFor="mandate-title">Nome do projeto ou missão</label>
-        <input id="mandate-title" name="title" maxLength={160} required placeholder="Ex.: Lançar a primeira versão do produto"/>
-        <label htmlFor="mandate-goal">Objetivo e contexto</label>
-        <textarea id="mandate-goal" name="goal" required maxLength={12000} rows={5} placeholder="O que precisa ser alcançado? Para quem? Quais são as limitações?"/>
-        <label htmlFor="mandate-success">Como saberemos que deu certo?</label>
-        <textarea id="mandate-success" name="success_criteria" maxLength={4000} rows={2} placeholder="Critérios de sucesso, entregáveis ou indicadores (opcional)."/>
-        <label htmlFor="mandate-priority">Prioridade</label>
-        <select id="mandate-priority" name="priority" defaultValue="normal">
+        <label className="field-label" htmlFor="mandate-title">Nome do projeto ou missão</label>
+        <input className="field" id="mandate-title" name="title" maxLength={160} required placeholder="Ex.: Lançar a primeira versão do produto"/>
+        <label className="field-label" htmlFor="mandate-goal">Objetivo e contexto</label>
+        <textarea className="field field-textarea" id="mandate-goal" name="goal" required maxLength={12000} rows={5} placeholder="O que precisa ser alcançado? Para quem? Quais são as limitações?"/>
+        <label className="field-label" htmlFor="mandate-success">Como saberemos que deu certo?</label>
+        <textarea className="field field-textarea" id="mandate-success" name="success_criteria" maxLength={4000} rows={2} placeholder="Critérios de sucesso, entregáveis ou indicadores (opcional)."/>
+        <label className="field-label" htmlFor="mandate-priority">Prioridade</label>
+        <select className="field" id="mandate-priority" name="priority" defaultValue="normal">
           <option value="low">Baixa</option><option value="normal">Normal</option><option value="high">Alta</option><option value="critical">Crítica</option>
         </select>
         <button className="button button-primary" type="submit"><Plus size={16}/> Registrar mandato</button>
