@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft, BrainCircuit, Clock3, MessageSquareText } from "lucide-react";
+import { ArrowLeft, BrainCircuit, Clock3, Download, MessageSquareText } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import StartRoundButton from "./start-round-button";
 
@@ -51,7 +51,7 @@ export default async function MeetingPage({ params, searchParams }: PageProps) {
           <b>Pauta da presidência</b>
           <p>{meeting.agenda || "Nenhum contexto adicional foi informado."}</p>
         </div>
-        <StartRoundButton meetingId={meeting.id} agents={agents ?? []} alreadyStarted={(messages ?? []).filter((message) => message.speaker_type === "agent" && message.round_number === 1).length >= 15} />
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", margin: "18px 0" }}><StartRoundButton meetingId={meeting.id} agents={agents ?? []} alreadyStarted={(messages ?? []).filter((message) => message.speaker_type === "agent" && message.round_number === 1).length >= 15} /><Link className="button button-ghost" href={`/api/meetings/${meeting.id}/export`}><Download size={15} /> Exportar para continuar no ChatGPT</Link></div>
         <div className="section-title">
           <div><span className="eyebrow">REGISTRO DA SESSÃO</span><h2>Mensagens e argumentos</h2></div>
           <span className="section-count">{messages?.length ?? 0} REGISTROS</span>
