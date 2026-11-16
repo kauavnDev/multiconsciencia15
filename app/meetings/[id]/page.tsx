@@ -89,11 +89,13 @@ export default async function MeetingPage({ params, searchParams }: PageProps) {
           <p>{meeting.agenda || "Nenhum contexto adicional foi informado."}</p>
         </div>
 
+        <SummonAgent meetingId={meeting.id} agents={allAgents} active={selectedSlugs} />
         <StartRoundButton
           meetingId={meeting.id}
           agents={activeAgents}
           openingCount={openingCount}
           phaseCounts={phaseCounts}
+          expectedParticipants={expectedParticipants}
         />
 
         {phaseCounts.synthesis >= 1 && (
