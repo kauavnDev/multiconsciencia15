@@ -13,7 +13,7 @@ Conselho de inteligências artificiais independentes. Aplicação web em Next.js
 - RLS (Row Level Security) e vínculos que impedem misturar dados de usuários diferentes.
 - Layout responsivo para celular e desktop.
 
-A criação e o histórico de reuniões estão implementados. O banco comporta rodadas, votos, memórias e auditoria, e os 15 prompts foram especializados. A primeira rodada já possui endpoint server-side para chamar cada agente separadamente e salvar as respostas. As fases de contestação, revisão, votação, síntese e a experiência em tempo real ainda estão em desenvolvimento.
+A criação e o histórico de reuniões estão implementados. O banco comporta rodadas, votos, memórias e auditoria, e os 15 prompts foram especializados. A primeira rodada já possui endpoint server-side para chamar cada agente separadamente e salvar as respostas, com concorrência limitada a três chamadas simultâneas. As fases de contestação, revisão, votação, síntese e a experiência em tempo real ainda estão em desenvolvimento.
 
 ## Configuração local
 
@@ -28,6 +28,7 @@ A criação e o histórico de reuniões estão implementados. O banco comporta r
    - `supabase/migrations/0005_revoke_anon_access.sql`
    - `supabase/migrations/0006_agent_rounds_memory_audit.sql`
    - `supabase/migrations/0007_orchestration_fk_indexes.sql`
+   - `supabase/migrations/0008_unique_agent_round_replies.sql`
    - `supabase/migrations/0008_unique_agent_round_replies.sql`
 5. Em Supabase Auth > URL Configuration, configure a Site URL de produção e inclua os Redirect URLs usados pela aplicação:
    - `http://localhost:3000/auth/callback`
