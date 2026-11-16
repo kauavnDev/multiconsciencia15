@@ -8,11 +8,12 @@ Conselho de inteligências artificiais independentes. Aplicação web em Next.js
 - Sessão SSR com cookies e validação de identidade no servidor.
 - Painel privado com os 15 conselheiros fixos.
 - Criação de reuniões com pauta, histórico persistente e acesso privado.
-- Estrutura de banco para perfis, reuniões, mensagens e decisões.
+- Estrutura de banco para perfis, reuniões, mensagens, decisões, rodadas, votos, memórias individuais/coletivas e trilha de auditoria.
+- Perfis de instrução especializados para os 15 agentes fixos.
 - RLS (Row Level Security) e vínculos que impedem misturar dados de usuários diferentes.
 - Layout responsivo para celular e desktop.
 
-A criação e o histórico de reuniões já estão implementados. A orquestração das 15 inteligências, as rodadas de debate, revisão de posições e votação ainda são etapas posteriores; a interface não deve apresentar uma reunião simulada como se fosse um debate real.
+A criação e o histórico de reuniões estão implementados. O banco agora também comporta rodadas, votos, memórias e auditoria, e os 15 prompts foram especializados. A execução das chamadas de IA, o fluxo de debate/revisão/votação e a interface de reunião em tempo real ainda precisam ser implementados; a interface não deve apresentar uma reunião simulada como se fosse um debate real.
 
 ## Configuração local
 
@@ -25,6 +26,8 @@ A criação e o histórico de reuniões já estão implementados. A orquestraç�
    - `supabase/migrations/0003_data_integrity.sql`
    - `supabase/migrations/0004_foreign_key_indexes.sql`
    - `supabase/migrations/0005_revoke_anon_access.sql`
+   - `supabase/migrations/0006_agent_rounds_memory_audit.sql`
+   - `supabase/migrations/0007_orchestration_fk_indexes.sql`
 5. Em Supabase Auth > URL Configuration, configure a Site URL de produção e inclua os Redirect URLs usados pela aplicação:
    - `http://localhost:3000/auth/callback`
    - `https://SEU-DOMINIO/auth/callback`
@@ -54,4 +57,4 @@ A chave de API de IA, quando a orquestração for implementada, deverá existir 
 
 ## Estado do produto
 
-A base de autenticação e persistência está conectada ao projeto Supabase. As migrações 0001–0005 foram aplicadas e verificadas. As reuniões reais, o debate multiagente, as votações e o fluxo de aprovação do presidente dependem da próxima etapa de implementação do backend de orquestração.
+A base de autenticação e persistência está conectada ao projeto Supabase. As migrações 0001–0007 foram aplicadas e verificadas. As reuniões reais, o debate multiagente, as votações e o fluxo de aprovação do presidente dependem da próxima etapa de implementação do backend de orquestração.
