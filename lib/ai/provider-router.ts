@@ -152,7 +152,6 @@ export async function runWithBestAvailableProvider(options: RouterOptions): Prom
             { role: "system", content: options.systemPrompt },
             { role: "user", content: options.input },
           ],
-          temperature: 0.35,
           max_tokens: 650,
         }),
         signal: AbortSignal.timeout(45_000),
