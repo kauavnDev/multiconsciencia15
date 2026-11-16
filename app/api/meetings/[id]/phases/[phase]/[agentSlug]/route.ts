@@ -57,7 +57,7 @@ export async function POST(
         await supabase.from("agent_memories").insert({
           owner_id: auth.user.id, scope: "collective", agent_slug: null,
           memory_type: "summary",
-          content: `Síntese da reunião "${meeting.title}":\\n\\n${existing.content}`.slice(0, 12000),
+          content: `Síntese da reunião "${meeting.title}":\n\n${existing.content}`.slice(0, 12000),
           source_meeting_id: meetingId, is_active: true,
         });
       }
@@ -201,7 +201,7 @@ export async function POST(
         scope: "collective",
         agent_slug: null,
         memory_type: "summary",
-        content: `Síntese da reunião "${meeting.title}":\\n\\n${result.text}`.slice(0, 12000),
+        content: `Síntese da reunião "${meeting.title}":\n\n${result.text}`.slice(0, 12000),
         source_meeting_id: meetingId,
         is_active: true,
       });
