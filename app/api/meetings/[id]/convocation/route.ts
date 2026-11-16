@@ -12,20 +12,20 @@ export async function POST(_request:Request,{params}:{params:Promise<{id:string}
   supabase.from("ai_provider_health").select("provider,consecutive_failures,cooldown_until,average_latency_ms,last_success_at,last_failure_at").eq("owner_id",auth.user.id)
  ]);
  if(!meeting||!director)return NextResponse.json({error:"Reunião ou Diretor-Geral não encontrado."},{status:404});
- const old=(pref?.event_data??{}) as {mode?:string;selected_slugs?:string[];director_reviewed?:boolean;director_reason?:string};
+ const old=(pref?.event_data??{}) as {mode?:string;selected_slugs?:string[];president_selected_slugs?:string[];director_reviewed?:boolean;director_reason?:string};
  if(old.mode==="manual")return NextResponse.json({ok:true,skipped:true,reason:"A equipe foi escolhida pela Presidência."});
  if(old.director_reviewed)return NextResponse.json({ok:true,alreadyReviewed:true,selected:old.selected_slugs,reason:old.director_reason});
  const prefs=(auth.user.user_metadata?.council_preferences??{}) as {maxParticipants?:number;directorAutonomy?:string};
  const max=[3,5,6,8,10,15].includes(Number(prefs.maxParticipants))?Number(prefs.maxParticipants):6;
  const catalogue=(agents??[]).map(a=>({slug:a.slug,name:a.name,specialty:a.specialty}));
- const input=`PAUTA: ${meeting.title}\nCONTEXTO: ${meeting.agenda??"Não informado"}\nCATÁLOGO DE ESPECIALISTAS: ${JSON.stringify(catalogue)}\n\nEscolha até ${max} participantes no total. Inclua diretor-geral e mediador sempre. Selecione apenas especialistas que realmente acrescentem perspectiva para esta pauta. Evite convocar todos por padrão. Preserve também estes participantes que a Presidência já adicionou: ${(old.selected_slugs??[]).join(", ")}. Responda SOMENTE JSON válido neste formato: {"selected_slugs":["slug"],"reason":"uma frase curta explicando a escolha"}. Não invente slugs.`;
+ const input=`PAUTA: ${meeting.title}\nCONTEXTO: ${meeting.agenda??"Não informado"}\nCATÁLOGO DE ESPECIALISTAS: ${JSON.stringify(catalogue)}\n\nEscolha até ${max} participantes no total. Inclua diretor-geral e mediador sempre. Selecione apenas especialistas que realmente acrescentem perspectiva para esta pauta. Evite convocar todos por padrão. Preserve também estes participantes que a Presidência já adicionou: ${(old.president_selected_slugs??[]).join(", ")}. Responda SOMENTE JSON válido neste formato: {"selected_slugs":["slug"],"reason":"uma frase curta explicando a escolha"}. Não invente slugs.`;
  try{
   const result=await runWithBestAvailableProvider({systemPrompt:director.system_prompt+"\nVocê decide a composição do conselho para cada pauta. Pense como coordenador: diversidade de competências, relevância e eficiência. Retorne somente JSON válido.",input,health:health??[],allowPaid:false});
   const raw=result.text.replace(/^```(?:json)?/i,"").replace(/```$/,"").trim();
   const parsed=JSON.parse(raw) as {selected_slugs?:unknown;reason?:unknown};
   const allowed=new Set(catalogue.map(a=>a.slug));
   const proposed=Array.isArray(parsed.selected_slugs)?parsed.selected_slugs.filter((v):v is string=>typeof v==="string"&&allowed.has(v)):[];
-  const selected=Array.from(new Set(["diretor-geral","mediador",...(old.selected_slugs??[]),...proposed])).filter(s=>allowed.has(s)).slice(0,Math.max(2,max));
+  const selected=Array.from(new Set(["diretor-geral","mediador",...(old.president_selected_slugs??[]),...proposed])).filter(s=>allowed.has(s)).slice(0,Math.max(2,max));
   if(!selected.includes("diretor-geral"))selected.unshift("diretor-geral");
   if(!selected.includes("mediador"))selected.push("mediador");
   const reason=typeof parsed.reason==="string"?parsed.reason.slice(0,300):"Equipe selecionada pela relevância das especialidades para a pauta.";
