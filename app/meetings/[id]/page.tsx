@@ -6,6 +6,7 @@ import StartRoundButton from "./start-round-button";
 import PresidentDecision from "./president-decision";
 import SummonAgent from "@/components/summon-agent";
 import MeetingChat from "@/components/meeting-chat";
+import DirectorConvocation from "@/components/director-convocation";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -38,7 +39,7 @@ export default async function MeetingPage({ params, searchParams }: PageProps) {
   ]);
 
   const rows = messages ?? [];
-  const participantPrefs = (preferenceEvent?.event_data ?? {}) as { mode?: string; selected_slugs?: string[] };
+  const participantPrefs = (preferenceEvent?.event_data ?? {}) as { mode?: string; selected_slugs?: string[]; director_reviewed?: boolean; director_reason?: string };
   const allAgents = agents ?? [];
   const topic = `${meeting.title} ${meeting.agenda ?? ""}`.toLowerCase();
   const topicRules: Array<{ terms: string[]; agents: string[] }> = [
@@ -89,6 +90,7 @@ export default async function MeetingPage({ params, searchParams }: PageProps) {
           <p>{meeting.agenda || "Nenhum contexto adicional foi informado."}</p>
         </div>
 
+        <DirectorConvocation meetingId={meeting.id} mode={participantPrefs.mode} reason={participantPrefs.director_reason} shouldRun={!!preferenceEvent && participantPrefs.mode !== "manual" && !participantPrefs.director_reviewed} />
         <SummonAgent meetingId={meeting.id} agents={allAgents} active={selectedSlugs} />
         <StartRoundButton
           meetingId={meeting.id}
