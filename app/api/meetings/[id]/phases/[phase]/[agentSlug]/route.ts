@@ -88,7 +88,7 @@ export async function POST(
   const transcript = (allMessages ?? []).map((m) => {
     const who = m.speaker_type === "president" ? "PRESIDÊNCIA" : m.agent_slug || "SISTEMA";
     return `[${who} | etapa ${m.round_number}] ${m.content}`;
-  }).join("\n\n").slice(-24000);
+  }).join("\n\n").slice(-6500);
 
   const phaseInstructions: Record<Stage, string> = {
     challenge: "FASE DE CONTESTAÇÃO. Leia as análises iniciais e conteste argumentos concretos. Identifique pelo menos duas premissas frágeis, riscos ou pontos cegos. Reconheça o que estiver bem fundamentado. Não faça ataques pessoais nem invente fatos. Termine com perguntas que precisam ser respondidas.",
