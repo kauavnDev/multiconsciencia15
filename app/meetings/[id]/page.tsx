@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, BrainCircuit, Clock3, MessageSquareText } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import StartRoundButton from "./start-round-button";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -23,11 +24,13 @@ export default async function MeetingPage({ params, searchParams }: PageProps) {
 
   if (!meeting) notFound();
 
-  const { data: messages } = await supabase
+  const [{ data: messages }, { data: agents }] = await Promise.all([supabase
     .from("meeting_messages")
     .select("id,speaker_type,agent_slug,content,round_number,created_at")
     .eq("meeting_id", id)
-    .order("created_at", { ascending: true });
+    .order("created_at", { ascending: true }),
+    supabase.from("agents").select("slug,name").eq("is_fixed", true).order("name", { ascending: true }),
+  ]);
 
   return (
     <main className="auth-shell">
@@ -48,6 +51,7 @@ export default async function MeetingPage({ params, searchParams }: PageProps) {
           <b>Pauta da presidência</b>
           <p>{meeting.agenda || "Nenhum contexto adicional foi informado."}</p>
         </div>
+        <StartRoundButton meetingId={meeting.id} agents={agents ?? []} alreadyStarted={(messages ?? []).filter((message) => message.speaker_type === "agent" && message.round_number === 1).length >= 15} />
         <div className="section-title">
           <div><span className="eyebrow">REGISTRO DA SESSÃO</span><h2>Mensagens e argumentos</h2></div>
           <span className="section-count">{messages?.length ?? 0} REGISTROS</span>
@@ -68,7 +72,7 @@ export default async function MeetingPage({ params, searchParams }: PageProps) {
         ) : (
           <div className="empty-state"><b>Nenhuma mensagem registrada ainda.</b></div>
         )}
-        <div className="auth-secure">◈ A reunião está salva. A rodada de debate com IA será ativada na próxima etapa.</div>
+        <div className="auth-secure">◈ As análises são geradas individualmente pela API. As próximas fases de contestação, revisão e votação serão liberadas em etapas.</div>
       </section>
     </main>
   );
