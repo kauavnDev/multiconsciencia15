@@ -24,7 +24,7 @@ export async function POST(
 
   if (!meeting) return NextResponse.json({ error: "Reunião não encontrada." }, { status: 404 });
   const prefs = (preferenceEvent?.event_data ?? {}) as { mode?: string; selected_slugs?: string[] };
-  const expectedVotes = prefs.mode === "manual" ? new Set([...(prefs.selected_slugs ?? []), "diretor-geral", "mediador"]).size : 15;
+  const expectedVotes = Array.isArray(prefs.selected_slugs) && prefs.selected_slugs.length ? new Set([...prefs.selected_slugs, "diretor-geral", "mediador"]).size : 15;
   if (meeting.status === "completed") return NextResponse.json({ error: "Esta reunião já recebeu uma decisão." }, { status: 409 });
   if (!synthesis || (votes?.length ?? 0) < 15) {
     return NextResponse.json({ error: "Conclua a síntese e a votação dos 15 conselheiros antes de decidir." }, { status: 409 });
