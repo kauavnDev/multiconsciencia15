@@ -49,8 +49,8 @@ export default function StartRoundButton({ meetingId, agents, openingCount, phas
     let lastError = "";
     const models = new Set<string>();
 
-    for (let i = 0; i < targets.length; i += 3) {
-      const batch = targets.slice(i, i + 3);
+    for (let i = 0; i < targets.length; i += 1) {
+      const batch = targets.slice(i, i + 1);
       const results: Result[] = await Promise.all(batch.map(async (agent) => {
         try {
           const url = next.key === "opening"
@@ -71,6 +71,10 @@ export default function StartRoundButton({ meetingId, agents, openingCount, phas
       setMessage(failures
         ? `${successes} de ${targets.length} concluídos; ${failures} falharam. ${lastError}`
         : `${successes} de ${targets.length} concluídos. Modelos: ${Array.from(models).join(", ")}.`);
+      if (i + 1 < targets.length) {
+        setMessage(`Resposta ${successes + failures}/${targets.length}. Aguardando 20 segundos para respeitar os limites dos provedores gratuitos...`);
+        await new Promise((resolve) => setTimeout(resolve, 20_000));
+      }
     }
 
     setBusy(false);
