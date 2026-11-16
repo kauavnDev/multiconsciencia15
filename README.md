@@ -13,7 +13,7 @@ Conselho de inteligências artificiais independentes. Aplicação web em Next.js
 - RLS (Row Level Security) e vínculos que impedem misturar dados de usuários diferentes.
 - Layout responsivo para celular e desktop.
 
-A criação e o histórico de reuniões estão implementados. O banco agora também comporta rodadas, votos, memórias e auditoria, e os 15 prompts foram especializados. A execução das chamadas de IA, o fluxo de debate/revisão/votação e a interface de reunião em tempo real ainda precisam ser implementados; a interface não deve apresentar uma reunião simulada como se fosse um debate real.
+A criação e o histórico de reuniões estão implementados. O banco comporta rodadas, votos, memórias e auditoria, e os 15 prompts foram especializados. A primeira rodada já possui endpoint server-side para chamar cada agente separadamente e salvar as respostas. As fases de contestação, revisão, votação, síntese e a experiência em tempo real ainda estão em desenvolvimento.
 
 ## Configuração local
 
@@ -28,6 +28,7 @@ A criação e o histórico de reuniões estão implementados. O banco agora tamb
    - `supabase/migrations/0005_revoke_anon_access.sql`
    - `supabase/migrations/0006_agent_rounds_memory_audit.sql`
    - `supabase/migrations/0007_orchestration_fk_indexes.sql`
+   - `supabase/migrations/0008_unique_agent_round_replies.sql`
 5. Em Supabase Auth > URL Configuration, configure a Site URL de produção e inclua os Redirect URLs usados pela aplicação:
    - `http://localhost:3000/auth/callback`
    - `https://SEU-DOMINIO/auth/callback`
@@ -42,7 +43,7 @@ No Vercel, configure as duas variáveis públicas do Supabase para Production, P
 
 A chave publishable é apropriada para uso no cliente porque as tabelas expostas são protegidas por RLS. **Nunca** coloque `service_role`, chaves secretas do Supabase ou `OPENAI_API_KEY` em variáveis com prefixo `NEXT_PUBLIC_`, nem em arquivos commitados.
 
-A chave de API de IA, quando a orquestração for implementada, deverá existir apenas no ambiente server-side da Vercel.
+Para habilitar a primeira rodada, configure `OPENAI_API_KEY` e `OPENAI_MODEL` somente como variáveis server-side da Vercel (sem prefixo `NEXT_PUBLIC_`). O botão da reunião chama cada agente em lotes de até três solicitações e salva as respostas individualmente. Sem essas variáveis, a aplicação informa que a API ainda não está configurada.
 
 ## Segurança
 
@@ -57,4 +58,4 @@ A chave de API de IA, quando a orquestração for implementada, deverá existir 
 
 ## Estado do produto
 
-A base de autenticação e persistência está conectada ao projeto Supabase. As migrações 0001–0007 foram aplicadas e verificadas. As reuniões reais, o debate multiagente, as votações e o fluxo de aprovação do presidente dependem da próxima etapa de implementação do backend de orquestração.
+A base de autenticação e persistência está conectada ao projeto Supabase. As migrações 0001–0008 foram aplicadas e verificadas. As reuniões reais, o debate multiagente, as votações e o fluxo de aprovação do presidente dependem da próxima etapa de implementação do backend de orquestração.
