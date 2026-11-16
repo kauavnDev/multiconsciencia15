@@ -25,16 +25,22 @@ export default async function MeetingPage({ params, searchParams }: PageProps) {
 
   if (!meeting) notFound();
 
-  const [{ data: messages }, { data: agents }, { data: votes }] = await Promise.all([
+  const [{ data: messages }, { data: agents }, { data: votes }, { data: preferenceEvent }] = await Promise.all([
     supabase.from("meeting_messages")
       .select("id,speaker_type,agent_slug,content,round_number,created_at")
       .eq("meeting_id", id)
       .order("created_at", { ascending: true }),
     supabase.from("agents").select("slug,name").eq("is_fixed", true).order("name", { ascending: true }),
     supabase.from("meeting_votes").select("agent_slug,vote,rationale").eq("meeting_id", id),
+    supabase.from("meeting_events").select("event_data").eq("meeting_id", id).eq("event_type", "participant_preferences").maybeSingle(),
   ]);
 
   const rows = messages ?? [];
+  const participantPrefs = (preferenceEvent?.event_data ?? {}) as { mode?: string; selected_slugs?: string[] };
+  const allAgents = agents ?? [];
+  const selectedSlugs = participantPrefs.mode === "manual" ? Array.from(new Set([...(participantPrefs.selected_slugs ?? []), "diretor-geral", "mediador"])) : allAgents.map((agent) => agent.slug);
+  const activeAgents = allAgents.filter((agent) => selectedSlugs.includes(agent.slug));
+  const expectedParticipants = activeAgents.length || 15;
   const countFor = (round: number) => rows.filter((message) => message.speaker_type === "agent" && message.round_number === round).length;
   const openingCount = countFor(1);
   const phaseCounts = {
