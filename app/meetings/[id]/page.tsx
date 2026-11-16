@@ -32,7 +32,7 @@ export default async function MeetingPage({ params, searchParams }: PageProps) {
       .select("id,speaker_type,agent_slug,content,round_number,created_at")
       .eq("meeting_id", id)
       .order("created_at", { ascending: true }),
-    supabase.from("agents").select("slug,name").eq("is_fixed", true).order("name", { ascending: true }),
+    supabase.from("agents").select("slug,name,specialty").eq("is_fixed", true).order("name", { ascending: true }),
     supabase.from("meeting_votes").select("agent_slug,vote,rationale").eq("meeting_id", id),
     supabase.from("meeting_events").select("event_data").eq("meeting_id", id).eq("event_type", "participant_preferences").maybeSingle(),
   ]);
