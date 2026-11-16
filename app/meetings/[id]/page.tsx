@@ -4,6 +4,7 @@ import { ArrowLeft, BrainCircuit, Clock3, MessageSquareText } from "lucide-react
 import { createClient } from "@/lib/supabase/server";
 import StartRoundButton from "./start-round-button";
 import PresidentDecision from "./president-decision";
+import SummonAgent from "@/components/summon-agent";
 
 type PageProps = {
   params: Promise<{ id: string }>;
