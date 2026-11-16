@@ -47,10 +47,20 @@ export default function OfficeSimulation({members}:{members:Member[]}){
    setEvent(pair[0]+" e "+pair[2]+" começaram uma conversa.");
  },[movePair,roster]);
  useEffect(()=>{
-   if(paused)return;
+   if(paused||eventType!=="idle")return;
    const timer=window.setInterval(()=>{
+     if(Math.random()<.22 && roster.length>3){
+       const pair=pairLines[pick(0,pairLines.length-1)];
+       const first=roster.find(m=>m.identity?.codename===pair[0]);
+       const second=roster.find(m=>m.identity?.codename===pair[2]);
+       if(first&&second){
+         setActors(old=>old.map(a=>a.slug===first.slug?{...a,targetX:45,targetY:47,activity:"Conversando",line:pair[1]}:a.slug===second.slug?{...a,targetX:55,targetY:51,activity:"Respondendo",line:pair[3]}:a));
+         setEvent(pair[0]+" e "+pair[2]+" começaram uma conversa espontânea.");
+         setEventType("chat");
+         return;
+       }
+     }
      setActors(old=>old.map(a=>{
-       if(a.activity==="Conversando"||a.activity==="Respondendo"||a.activity==="Jogando"||a.activity==="Desafiando")return a;
        if(Math.random()>.38)return a;
        const x=pick(8,92),y=pick(16,79);
        return {...a,targetX:x,targetY:y,x,y,activity:Math.random()>.65?"Dando uma volta":"Indo para estação",line:idleLines[pick(0,idleLines.length-1)]};
@@ -58,7 +68,7 @@ export default function OfficeSimulation({members}:{members:Member[]}){
      setRound(r=>r+1);
    },3600);
    return ()=>window.clearInterval(timer);
- },[paused]);
+ },[paused,eventType,roster]);
  useEffect(()=>{
    if(eventType==="idle")return;
    const timer=window.setTimeout(()=>{
