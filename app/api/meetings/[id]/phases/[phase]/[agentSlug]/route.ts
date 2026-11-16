@@ -88,13 +88,13 @@ export async function POST(
   const transcript = (allMessages ?? []).map((m) => {
     const who = m.speaker_type === "president" ? "PRESIDÊNCIA" : m.agent_slug || "SISTEMA";
     return `[${who} | etapa ${m.round_number}] ${m.content}`;
-  }).join("\n\n").slice(-6500);
+  }).join("\n\n").slice(-3500);
 
   const phaseInstructions: Record<Stage, string> = {
-    challenge: "FASE DE CONTESTAÇÃO. Leia as análises iniciais e conteste argumentos concretos. Identifique pelo menos duas premissas frágeis, riscos ou pontos cegos. Reconheça o que estiver bem fundamentado. Não faça ataques pessoais nem invente fatos. Termine com perguntas que precisam ser respondidas.",
-    revision: "FASE DE REVISÃO. Considere a análise inicial e as contestações. Diga explicitamente o que mantém, o que mudou e por quê. Apresente uma posição revisada, condições de validade e o que ainda permanece incerto. Não mude de opinião só para concordar com a maioria.",
-    voting: "FASE DE VOTAÇÃO. Vote de forma independente na proposta em pauta. Comece obrigatoriamente com uma linha: VOTO: APROVAR, VOTO: REJEITAR ou VOTO: ABSTER. Depois justifique com base nos argumentos e riscos registrados. Se a proposta estiver incompleta, pode abster-se. A presidência mantém a decisão final.",
-    synthesis: "FASE DE SÍNTESE. Você é o Mediador. Produza uma síntese imparcial de toda a sessão: questão central, propostas, pontos de acordo, divergências reais, argumentos minoritários, riscos, incertezas, distribuição dos votos e perguntas em aberto. Não force consenso. Não recomende aprovação automática. A presidência decide.",
+    challenge: "FASE DE CONTESTAÇÃO. Leia as análises iniciais e conteste argumentos concretos. Aponte no máximo dois pontos concretos de discordância ou risco. Responda diretamente ao argumento de outro conselheiro pelo nome/slug quando houver algo relevante; se concordar, diga por quê e acrescente algo novo. Seja breve: 3 a 5 frases, até 100 palavras. Não invente fatos.",
+    revision: "FASE DE REVISÃO. Considere a análise inicial e as contestações. Diga o que mantém ou muda e por quê, citando uma contestação concreta. Até 5 frases e 100 palavras. Não mude de opinião só para concordar com a maioria.",
+    voting: "FASE DE VOTAÇÃO. Vote de forma independente na proposta em pauta. Comece obrigatoriamente com uma linha: VOTO: APROVAR, VOTO: REJEITAR ou VOTO: ABSTER. Justifique em até 3 frases e 60 palavras. Se incompleta, pode abster-se. A presidência mantém a decisão final.",
+    synthesis: "FASE DE SÍNTESE. Você é o Mediador. Faça síntese imparcial e concisa: acordos, divergências, argumentos minoritários, riscos, votos e perguntas em aberto. Até 180 palavras. Não force consenso. A presidência decide.",
   };
 
   const input = [
@@ -103,7 +103,7 @@ export async function POST(
     `ETAPA: ${stage.label}`,
     `HISTÓRICO DA SESSÃO:\n${transcript || "Sem mensagens anteriores."}`,
     phaseInstructions[phase as Stage],
-    "Seja claro, específico e fiel ao histórico. Não invente dados, fontes, falas ou votos. A decisão final pertence à presidência.",
+    "Responda como numa conversa de equipe, não como relatório ou artigo. Fale diretamente com os outros conselheiros, cite argumentos reais do histórico e faça uma contribuição nova. Use linguagem natural, no máximo 100 palavras (exceto síntese: 180). Sem tabelas, títulos longos ou markdown excessivo. Não invente dados, fontes, falas ou votos. A decisão final pertence à presidência.",
   ].join("\n\n");
 
   const { data: taskData, error: taskError } = await supabase.from("agent_task_runs").upsert({
